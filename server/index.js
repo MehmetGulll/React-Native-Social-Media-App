@@ -5,6 +5,7 @@ const postRoutes = require('./routes/postRoutes');
 const userPostRoutes= require('./routes/userPostRoutes');
 const searchUserRoutes = require('./routes/searchUserRoutes');
 const followRoutes = require('./routes/followRoutes');
+const commentRoutes = require('./routes/commentRoutes');
 const path = require('path');
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(postRoutes);
 app.use(userPostRoutes);
 app.use(searchUserRoutes);
 app.use(followRoutes);
+app.use(commentRoutes);
 const PORT = 5000;
 
 app.listen(PORT, ()=>console.log(`Server running the port ${PORT}`));

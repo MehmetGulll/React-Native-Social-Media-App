@@ -1,5 +1,5 @@
 import { Image, TouchableOpacity, View, Alert } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { Platform, SafeAreaView } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import "react-native-gesture-handler";
@@ -32,6 +32,7 @@ const CustomTabBarButton = ({ children, onPress }) => (
 
 function BottomTabNavigator() {
   const { username, currentUserId } = useContext(GlobalContext);
+  const navigation = useNavigation();
   const selectPhotoTapped = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -70,6 +71,8 @@ function BottomTabNavigator() {
         });
     }
   };
+ 
+  
   return (
     <Tab.Navigator
       screenOptions={{

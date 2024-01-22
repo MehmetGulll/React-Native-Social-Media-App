@@ -128,7 +128,7 @@ function BottomTabNavigator() {
           tabBarButton: (props) => <CustomTabBarButton {...props} />,
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="ProfileNavigator"
         component={ProfileNavigator}
         options={{
@@ -136,7 +136,25 @@ function BottomTabNavigator() {
             <Image source={require("./assets/profiletab.png")} />
           ),
         }}
-      />
+      /> */}
+      <Tab.Screen
+    name="ProfileNavigator"
+    component={ProfileNavigator}
+    options={{
+      tabBarIcon: () => (
+        <TouchableOpacity
+          onPress={() => {
+           navigation.reset({
+            index:0,
+            routes:[{name:"ProfileNavigator", params:{screen:'MyProfile'}}]
+           })
+          }}
+        >
+          <Image source={require("./assets/profiletab.png")} />
+        </TouchableOpacity>
+      ),
+    }}
+  />
       <Tab.Screen
         name="Notifications"
         component={Notifications}

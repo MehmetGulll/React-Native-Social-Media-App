@@ -14,10 +14,12 @@ import {
   TouchableOpacity,
   TextInput,
   RefreshControl,
+  Modal,
 } from "react-native";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import { LinearGradient } from "expo-linear-gradient";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import BottomSheet from "@gorhom/bottom-sheet";
 import axios from "axios";
 import { GlobalContext } from "../../Context/GlobalStates";
@@ -34,6 +36,7 @@ function Home() {
   const [likedPosts, setLikedPosts] = useState({});
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
+  const [notificationsModal, setNotificationsModal] = useState(false);
   const navigation = useNavigation();
   const { currentUserId } = useContext(GlobalContext);
 
@@ -88,7 +91,7 @@ function Home() {
     };
     getPosts();
     fetchLikedPosts();
-  }, []);
+  }, [refresh]);
 
   const searchUser = async (text) => {
     setSearchUsers(text);
@@ -191,13 +194,51 @@ function Home() {
             color={"#FFF"}
             flex={1}
           />
+          <TouchableOpacity
+            onPress={() => setNotificationsModal(!notificationsModal)}
+          >
+            <Image
+              source={require("../../assets/Vector.png")}
+              width={33}
+              height={33}
+              style={{ marginLeft: 19 }}
+            />
+          </TouchableOpacity>
 
-          <Image
-            source={require("../../assets/Vector.png")}
-            width={33}
-            height={33}
-            style={{ marginLeft: 19 }}
-          />
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={notificationsModal}
+          >
+            <LinearGradient
+              colors={["#3B21B5", "#8F62D7", "#C69BE7"]}
+              style={{ flex: 1 }}
+            >
+              <Ionicons name = "arrow-back" size={35} style={{padding:15, color:'#FFF'}} onPress={()=>setNotificationsModal(!notificationsModal)} />
+              <View style={styles.notificationsContainer}>
+                
+                <View>
+                  <Text
+                    style={{ color: "#FFF", fontSize: 24, fontWeight: "700" }}
+                  >
+                    Notifications
+                  </Text>
+                </View>
+                <View style={styles.notificationContainer}>
+                  <View style={{ flexDirection: "column", gap: 3 }}>
+                    <Text
+                      style={{ color: "#FFF", fontWeight: "700", fontSize: 16 }}
+                    >
+                      Mehmet Gül sizi takip etti.
+                    </Text>
+                    <Text style={{ color: "#a9a9a9", marginBottom: 5 }}>
+                      Az önce
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </LinearGradient>
+          </Modal>
         </View>
         {users.length > 0 && (
           <View style={styles.resultContainer}>
@@ -218,7 +259,6 @@ function Home() {
                   {user.firstname} {user.lastname}
                 </Text>
               </TouchableOpacity>
-             
             ))}
           </View>
         )}
@@ -427,6 +467,14 @@ const styles = StyleSheet.create({
     marginTop: 5,
     borderBottomWidth: 1,
     borderColor: "#DDDDDD",
+  },
+  notificationsContainer: {
+    padding: 39,
+  },
+  notificationContainer: {
+    marginTop: 35,
+    borderBottomWidth: 1,
+    borderColor: "#FFF",
   },
 });
 

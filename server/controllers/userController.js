@@ -39,6 +39,19 @@ exports.login = async(req,res)=>{
     }
 }
 
+exports.checkEmail = async(req,res) =>{
+    try {
+        const user = await User.findOne({email:req.query.email})
+        if(user){
+            res.json({exists:true})
+        }else{
+            res.json({exists:false})
+        }
+    } catch (error) {
+        console.log("Error",error);
+    }
+}
+
 exports.logout = async(req,res)=>{
     try {
         res.header('auth-token','').json({message:"Log out successfly"});

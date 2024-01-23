@@ -72,8 +72,6 @@ function Home() {
     setIsOpenBottomSheet(index);
   }, []);
 
-  const handleCloseSheet = () => bottomSheetRef.current.close();
-
   useEffect(() => {
     const getPosts = async () => {
       try {

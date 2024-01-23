@@ -16,21 +16,41 @@ function SignUp() {
   const [selectedGender, setSelectedGender] = useState("");
   const [agreeChecked, setAgreeChecked] = useState(false);
   const navigation = useNavigation();
-  
-  const handleSignUp = async()=>{
-    try {
-      const response = await axios.post(`${apihost}/signup`,{
-        firstname: firstName,
-        lastname:lastName,
-        email:email,
-        password:password,
-        gender:selectedGender
-      })
-      console.log(response.data);
-    } catch (error) {
-      console.log("Error",error)
+
+  const handleSignUp = async () => {
+    if (firstName.length < 3 || lastName.length < 3) {
+      Alert.alert("Uyarı", "İsim ve Soyisminiz 3 harften fazla olmalı", [
+        { text: "Tamam", style: "cancel" },
+      ]);
+    } else {
+      try {
+        const checkResponse = await axios.get(`${apihost}/checkEmail`, {
+          params: {
+            email: email,
+          },
+        });
+        if (checkResponse.data.exists) {
+          Alert.alert(
+            "Uyarı",
+            "Bu e-postaya kayıtlı bir hesap zaten bulunmakta",
+            [{ text: "Tamam", style: "cancel" }]
+          );
+        } else {
+          const response = await axios.post(`${apihost}/signup`, {
+            firstname: firstName,
+            lastname: lastName,
+            email: email,
+            password: password,
+            gender: selectedGender,
+          });
+          console.log(response.data);
+         
+        }
+      } catch (error) {
+        console.log("Error", error);
+      }
     }
-  }
+  };
   return (
     <View style={{ flex: 1 }}>
       <LinearGradient
@@ -148,7 +168,11 @@ function SignUp() {
             </TouchableOpacity>
           </View>
           <View style={{ flexDirection: "row" }}>
-            <Checkbox color={"#FFF"} value={agreeChecked} onValueChange={setAgreeChecked} />
+            <Checkbox
+              color={"#FFF"}
+              value={agreeChecked}
+              onValueChange={setAgreeChecked}
+            />
             <Text
               style={{
                 fontSize: 17,
@@ -162,7 +186,7 @@ function SignUp() {
           </View>
           <View>
             <Button
-              text={"Sign in"}
+              text={"Sign up"}
               backgroundColor={"#635A8F"}
               color={"#FFF"}
               padding={15}

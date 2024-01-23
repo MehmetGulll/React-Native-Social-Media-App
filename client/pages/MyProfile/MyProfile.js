@@ -42,7 +42,7 @@ function MyProfile() {
     setIsOpenBottomSheet(index);
   }, []);
 
-  const handleCloseSheet = ()=>bottomSheetRef.current.close();
+  const handleCloseSheet = () => bottomSheetRef.current.close();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -60,24 +60,26 @@ function MyProfile() {
   const deletePost = async () => {
     console.log("Siliyorum simdi");
     try {
-      const response = await axios.delete(`${apihost}/deletePost/${selectedItem}`);
+      const response = await axios.delete(
+        `${apihost}/deletePost/${selectedItem}`
+      );
       console.log(response.data);
-    
+
       bottomSheetRef.current.close();
     } catch (error) {
       console.log("Error", error);
     }
   };
 
-  const logOut = async()=>{
+  const logOut = async () => {
     try {
-      const response = await axios.get(`${apihost}/logout`)
+      const response = await axios.get(`${apihost}/logout`);
       console.log(response.data);
       await navigation.navigate("Login");
     } catch (error) {
-      console.log("Error",error);
+      console.log("Error", error);
     }
-  }
+  };
 
   return (
     <GestureHandlerRootView style={{ color: "red", flex: 1 }}>
@@ -103,10 +105,20 @@ function MyProfile() {
         <View style={styles.userNameContainer}>
           <Text style={styles.username}>{username}</Text>
         </View>
-        <TouchableOpacity style = {{ alignItems:'center'}}>
-          <TouchableOpacity onPress={logOut} style = {{backgroundColor:'#FFF',flexDirection:'row',alignItems:'center', padding:5, borderRadius:12, marginVertical:5}}>
-          <Ionicons name = "exit-outline" size={24} />
-          <Text>Log Out</Text>
+        <TouchableOpacity style={{ alignItems: "center" }}>
+          <TouchableOpacity
+            onPress={logOut}
+            style={{
+              backgroundColor: "#FFF",
+              flexDirection: "row",
+              alignItems: "center",
+              padding: 5,
+              borderRadius: 12,
+              marginVertical: 5,
+            }}
+          >
+            <Ionicons name="exit-outline" size={24} />
+            <Text>Log Out</Text>
           </TouchableOpacity>
         </TouchableOpacity>
         <View style={styles.postFollowContainer}>
@@ -137,7 +149,7 @@ function MyProfile() {
         </View>
 
         <FlatList
-        contentContainerStyle={{paddingBottom:109}}
+          contentContainerStyle={{ paddingBottom: 109 }}
           data={post}
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
@@ -150,7 +162,9 @@ function MyProfile() {
               }}
             >
               <View style={{ marginTop: 14, marginHorizontal: 10 }}>
-                <TouchableOpacity onPress={()=>handlePresentModalPress(item._id)}>
+                <TouchableOpacity
+                  onPress={() => handlePresentModalPress(item._id)}
+                >
                   <Ionicons name="menu-outline" size={28} />
                 </TouchableOpacity>
 
@@ -189,7 +203,7 @@ function MyProfile() {
                       999
                     </Text>
                   </View>
-                  <View
+                  <TouchableOpacity
                     style={{
                       flexDirection: "row",
                       alignItems: "center",
@@ -209,9 +223,9 @@ function MyProfile() {
                         marginLeft: 2,
                       }}
                     >
-                      320
+                      Show comments
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 </View>
               </View>
             </View>
@@ -224,13 +238,18 @@ function MyProfile() {
           onChange={handleSheetChanges}
         >
           <View
-            style={{ flexDirection: "column", gap: 20, alignItems: "center",marginTop:15 }}
+            style={{
+              flexDirection: "column",
+              gap: 20,
+              alignItems: "center",
+              marginTop: 15,
+            }}
           >
             <TouchableOpacity onPress={deletePost}>
-              <Text style = {styles.username}>Delete Post</Text>
+              <Text style={styles.username}>Delete Post</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleCloseSheet}>
-              <Text style = {{fontSize:16}}>Cancel</Text>
+              <Text style={{ fontSize: 16 }}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </BottomSheet>

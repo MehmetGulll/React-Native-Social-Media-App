@@ -16,7 +16,9 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  TextInput,
 } from "react-native";
+import Button from "../../components/Button";
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import BottomSheet from "@gorhom/bottom-sheet";
@@ -28,19 +30,61 @@ import { apihost } from "../../API/url";
 
 function MyProfile() {
   const navigation = useNavigation();
-  const { username } = useContext(GlobalContext);
+  const { username, currentUserId } = useContext(GlobalContext);
   const [post, setPost] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState("");
   const [isOpenBottomSheet, setIsOpenBottomSheet] = useState(0);
+  const [isOpenBottomSheet2, setIsOpenBottomSheet2] = useState(0);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["%25", "50%"], []);
   const handlePresentModalPress = useCallback((postId) => {
     setSelectedItem(postId);
     setIsOpenBottomSheet(1);
   }, []);
+  const handlePresentModalPress2 = useCallback(
+    (postId) => {
+      setSelectedItem(postId);
+      console.log(postId);
+      setIsOpenBottomSheet2(1);
+      const fetchComments = async () => {
+        try {
+          const response = await axios.get(`${apihost}/getComments/${postId}`);
+          setComments(response.data);
+        } catch (error) {
+          console.log("Error", error);
+        }
+      };
+      fetchComments();
+    },
+    [setComments, setSelectedItem]
+  );
   const handleSheetChanges = useCallback((index) => {
     setIsOpenBottomSheet(index);
   }, []);
+  const handleSheetChanges2 = useCallback((index) => {
+    setIsOpenBottomSheet2(index);
+  }, []);
+  const handleSendComment = async () => {
+    console.log(selectedItem);
+    console.log(currentUserId);
+    console.log(commentText);
+    try {
+      const response = await axios.post(`${apihost}/addComment`, {
+        postId: selectedItem,
+        userId: currentUserId,
+        content: commentText,
+      });
+      const commentsResponse = await axios.get(
+        `${apihost}/getComments/${selectedItem}`
+      );
+      setComments(commentsResponse.data);
+      console.log(response.data);
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
 
   const handleCloseSheet = () => bottomSheetRef.current.close();
 
@@ -204,6 +248,7 @@ function MyProfile() {
                     </Text>
                   </View>
                   <TouchableOpacity
+                    onPress={() => handlePresentModalPress2(item._id)}
                     style={{
                       flexDirection: "row",
                       alignItems: "center",
@@ -253,6 +298,46 @@ function MyProfile() {
             </TouchableOpacity>
           </View>
         </BottomSheet>
+        <BottomSheet
+          ref={bottomSheetRef}
+          index={isOpenBottomSheet2}
+          snapPoints={snapPoints}
+          onChange={handleSheetChanges2}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              padding: 15,
+              gap: 20,
+            }}
+          >
+            <TextInput
+              placeholder="Yorumunu Yaz..."
+              style={{ borderBottomWidth: 1, flex: 1 }}
+              onChangeText={(text) => setCommentText(text)}
+            />
+            <Button text="Send" onPress={() => handleSendComment()} />
+          </View>
+
+          <FlatList
+            data={comments}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
+              <View style={styles.postCommentsContainer}>
+                <View style={styles.postCommentContainer}>
+                  <View>
+                    <Text style={{ fontWeight: "500", fontSize: 15 }}>
+                      {item.userId.firstname} {item.userId.lastname}
+                    </Text>
+                  </View>
+
+                  <Text>{item.content}</Text>
+                </View>
+              </View>
+            )}
+          />
+        </BottomSheet>
       </LinearGradient>
     </GestureHandlerRootView>
   );
@@ -287,6 +372,14 @@ const styles = StyleSheet.create({
     gap: 20,
     marginHorizontal: 55,
     marginTop: 14,
+  },
+  postCommentsContainer: {
+    marginHorizontal: 30,
+  },
+  postCommentContainer: {
+    marginTop: 5,
+    borderBottomWidth: 1,
+    borderColor: "#DDDDDD",
   },
 });
 

@@ -31,7 +31,8 @@ const CustomTabBarButton = ({ children, onPress }) => (
 );
 
 function BottomTabNavigator() {
-  const { username, currentUserId } = useContext(GlobalContext);
+  const { username, currentUserId, notificationsModal, setNotificationsModal } =
+    useContext(GlobalContext);
   const navigation = useNavigation();
   const selectPhotoTapped = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -71,8 +72,7 @@ function BottomTabNavigator() {
         });
     }
   };
- 
-  
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -128,36 +128,38 @@ function BottomTabNavigator() {
           tabBarButton: (props) => <CustomTabBarButton {...props} />,
         }}
       />
-      {/* <Tab.Screen
+      <Tab.Screen
         name="ProfileNavigator"
         component={ProfileNavigator}
         options={{
           tabBarIcon: () => (
-            <Image source={require("./assets/profiletab.png")} />
+            <TouchableOpacity
+              onPress={() => {
+                navigation.reset({
+                  index: 0,
+                  routes: [
+                    {
+                      name: "ProfileNavigator",
+                      params: { screen: "MyProfile" },
+                    },
+                  ],
+                });
+              }}
+            >
+              <Image source={require("./assets/profiletab.png")} />
+            </TouchableOpacity>
           ),
         }}
-      /> */}
-      <Tab.Screen
-    name="ProfileNavigator"
-    component={ProfileNavigator}
-    options={{
-      tabBarIcon: () => (
-        <TouchableOpacity
-          onPress={() => {
-           navigation.reset({
-            index:0,
-            routes:[{name:"ProfileNavigator", params:{screen:'MyProfile'}}]
-           })
-          }}
-        >
-          <Image source={require("./assets/profiletab.png")} />
-        </TouchableOpacity>
-      ),
-    }}
-  />
+      />
       <Tab.Screen
         name="Notifications"
         component={Notifications}
+        listeners={{
+          tabPress:(e)=>{
+            e.preventDefault();
+            setNotificationsModal(!notificationsModal);
+          }
+        }}
         options={{
           tabBarIcon: () => (
             <Image source={require("./assets/notificationtab.png")} />

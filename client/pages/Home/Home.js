@@ -36,9 +36,12 @@ function Home() {
   const [likedPosts, setLikedPosts] = useState({});
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
-  const [notificationsModal, setNotificationsModal] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  const { currentUserId } = useContext(GlobalContext);
+  const { currentUserId, setNotificationsModal, notificationsModal } =
+    useContext(GlobalContext);
 
   const Wait = (duration = 1000) => {
     return new Promise((resolve) => {
@@ -90,6 +93,22 @@ function Home() {
     getPosts();
     fetchLikedPosts();
   }, [refresh]);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      setLoading(true);
+      const response = await axios.get(`${apihost}/getNotifications`, {
+        params: {
+          userId: currentUserId,
+          page: page,
+        },
+      });
+      setNotifications([...notifications, ...response.data]);
+      setLoading(false);
+      console.log(response.data);
+    };
+    fetchNotifications();
+  }, [page, notificationsModal]);
 
   const searchUser = async (text) => {
     setSearchUsers(text);
@@ -167,6 +186,12 @@ function Home() {
     }
   };
 
+  const handleLoadMore = ()=>{
+    if(!loading){
+      setPage(page+1);
+    }
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <LinearGradient
@@ -212,9 +237,13 @@ function Home() {
               colors={["#3B21B5", "#8F62D7", "#C69BE7"]}
               style={{ flex: 1 }}
             >
-              <Ionicons name = "arrow-back" size={35} style={{padding:15, color:'#FFF'}} onPress={()=>setNotificationsModal(!notificationsModal)} />
+              <Ionicons
+                name="arrow-back"
+                size={35}
+                style={{ padding: 15, color: "#FFF" }}
+                onPress={() => setNotificationsModal(!notificationsModal)}
+              />
               <View style={styles.notificationsContainer}>
-                
                 <View>
                   <Text
                     style={{ color: "#FFF", fontSize: 24, fontWeight: "700" }}
@@ -222,18 +251,31 @@ function Home() {
                     Notifications
                   </Text>
                 </View>
-                <View style={styles.notificationContainer}>
-                  <View style={{ flexDirection: "column", gap: 3 }}>
-                    <Text
-                      style={{ color: "#FFF", fontWeight: "700", fontSize: 16 }}
-                    >
-                      Mehmet Gül sizi takip etti.
-                    </Text>
-                    <Text style={{ color: "#a9a9a9", marginBottom: 5 }}>
-                      Az önce
-                    </Text>
-                  </View>
-                </View>
+                <FlatList
+                  data={notifications}
+                  keyExtractor={(item) => item._id}
+                  onEndReached={handleLoadMore}
+                  onEndReachedThreshold={0.5}
+                  renderItem={({ item }) => (
+                    <View style={styles.notificationContainer}>
+                      <View style={{ flexDirection: "column", gap: 3 }}>
+                        <Text
+                          style={{
+                            color: "#FFF",
+                            fontWeight: "700",
+                            fontSize: 16,
+                          }}
+                        >
+                          {item.follower.firstname} sizi takip etti.
+                        </Text>
+                        <Text style={{ color: "#a9a9a9", marginBottom: 5 }}>
+                          Az önce
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+                />
+                
               </View>
             </LinearGradient>
           </Modal>

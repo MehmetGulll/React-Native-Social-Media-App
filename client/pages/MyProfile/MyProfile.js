@@ -92,7 +92,6 @@ function MyProfile() {
     const fetchPosts = async () => {
       try {
         const response = await axios.get(`${apihost}/getUserPosts/${username}`);
-
         setPost(response.data);
       } catch (error) {
         console.log("Error", error);
@@ -196,85 +195,105 @@ function MyProfile() {
           contentContainerStyle={{ paddingBottom: 109 }}
           data={post}
           keyExtractor={(item) => item._id}
-          renderItem={({ item }) => (
-            <View
-              style={{
-                backgroundColor: "#6D4ACD",
-                marginHorizontal: 34,
-                borderRadius: 20,
-                marginTop: 23,
-              }}
-            >
-              <View style={{ marginTop: 14, marginHorizontal: 10 }}>
-                <TouchableOpacity
-                  onPress={() => handlePresentModalPress(item._id)}
-                >
-                  <Ionicons name="menu-outline" size={28} />
-                </TouchableOpacity>
+          renderItem={({ item }) => {
+            const date = new Date(item.createdAt);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                <View style={{ justifyContent: "center", marginTop: 6 }}>
-                  <Image
-                    source={{
-                      uri: `data:image/jpeg;base64,${item.content}`,
-                    }}
-                    width={307}
-                    height={210}
-                    borderRadius={20}
-                    style={{ marginTop: 10 }}
-                  />
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    marginTop: 11,
-                    marginBottom: 14,
-                  }}
-                >
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Image
-                      source={require("../../assets/heart.png")}
-                      width={24}
-                      height={24}
-                    />
-                    <Text
-                      style={{
-                        color: "#E5D7F7",
-                        fontSize: 13,
-                        fontWeight: "500",
-                        marginLeft: 2,
-                      }}
-                    >
-                      999
-                    </Text>
-                  </View>
+            return (
+              <View
+                style={{
+                  backgroundColor: "#6D4ACD",
+                  marginHorizontal: 34,
+                  borderRadius: 20,
+                  marginTop: 23,
+                }}
+              >
+                <View style={{ marginTop: 14, marginHorizontal: 10 }}>
                   <TouchableOpacity
-                    onPress={() => handlePresentModalPress2(item._id)}
+                    onPress={() => handlePresentModalPress(item._id)}
+                  >
+                    <Ionicons name="menu-outline" size={28} />
+                  </TouchableOpacity>
+                  <Text
                     style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      marginLeft: 12,
+                      fontSize: 12,
+                      fontWeight: "500",
+                      color: "#FFF",
                     }}
                   >
+                    {diffDays > 1
+                      ? `${diffDays} gün önce gönderildi`
+                      : "Bugün gönderildi"}
+                  </Text>
+
+                  <View style={{ justifyContent: "center", marginTop: 6 }}>
                     <Image
-                      source={require("../../assets/icons.png")}
-                      width={24}
-                      height={24}
+                      source={{
+                        uri: `data:image/jpeg;base64,${item.content}`,
+                      }}
+                      width={307}
+                      height={210}
+                      borderRadius={20}
+                      style={{ marginTop: 10 }}
                     />
-                    <Text
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      marginTop: 11,
+                      marginBottom: 14,
+                    }}
+                  >
+                    <View
+                      style={{ flexDirection: "row", alignItems: "center" }}
+                    >
+                      <Image
+                        source={require("../../assets/heart.png")}
+                        width={24}
+                        height={24}
+                      />
+                      <Text
+                        style={{
+                          color: "#E5D7F7",
+                          fontSize: 13,
+                          fontWeight: "500",
+                          marginLeft: 2,
+                        }}
+                      >
+                        999
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => handlePresentModalPress2(item._id)}
                       style={{
-                        color: "#E5D7F7",
-                        fontSize: 13,
-                        fontWeight: "500",
-                        marginLeft: 2,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginLeft: 12,
                       }}
                     >
-                      Show comments
-                    </Text>
-                  </TouchableOpacity>
+                      <Image
+                        source={require("../../assets/icons.png")}
+                        width={24}
+                        height={24}
+                      />
+                      <Text
+                        style={{
+                          color: "#E5D7F7",
+                          fontSize: 13,
+                          fontWeight: "500",
+                          marginLeft: 2,
+                        }}
+                      >
+                        Show comments
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
-            </View>
-          )}
+            );
+          }}
         />
         <BottomSheet
           ref={bottomSheetRef}

@@ -5,9 +5,10 @@ export const GlobalProvider = ({ children }) => {
   const [username, setUsername] = useState();
   const [caption, setCaption] = useState("");
   const [currentUserId, setCurrentUserId] = useState();
+  const [notificationsModal, setNotificationsModal] = useState(false);
   return (
     <GlobalContext.Provider
-      value={{ username, setUsername, caption, setCaption,currentUserId,setCurrentUserId  }}
+      value={{ username, setUsername, caption, setCaption,currentUserId,setCurrentUserId, notificationsModal, setNotificationsModal  }}
     >
       {children}
     </GlobalContext.Provider>

@@ -103,12 +103,12 @@ function Home() {
           page: page,
         },
       });
-      setNotifications([...notifications, ...response.data]);
+      setNotifications(response.data);
       setLoading(false);
       console.log(response.data);
     };
     fetchNotifications();
-  }, [page, notificationsModal]);
+  }, [notificationsModal]);
 
   const searchUser = async (text) => {
     setSearchUsers(text);
@@ -186,11 +186,11 @@ function Home() {
     }
   };
 
-  const handleLoadMore = ()=>{
-    if(!loading){
-      setPage(page+1);
+  const handleLoadMore = () => {
+    if (!loading) {
+      setPage(page + 1);
     }
-  }
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -266,7 +266,7 @@ function Home() {
                             fontSize: 16,
                           }}
                         >
-                          {item.follower.firstname} sizi takip etti.
+                          {item.follower.firstname} followed you.
                         </Text>
                         <Text style={{ color: "#a9a9a9", marginBottom: 5 }}>
                           Az önce
@@ -275,7 +275,6 @@ function Home() {
                     </View>
                   )}
                 />
-                
               </View>
             </LinearGradient>
           </Modal>
@@ -294,6 +293,7 @@ function Home() {
                     },
                   })
                 }
+                style = {{borderBottomWidth:1, padding:10, borderColor:'#D3D3D3'}}
               >
                 <Text>
                   {user.firstname} {user.lastname}

@@ -14,9 +14,10 @@ exports.signup = async(req,res)=>{
             gender:req.body.gender
         })
         const savedUser= await user.save();
-        res.json(savedUser);
+        res.json({message:true, user:savedUser});
     } catch (error) {
         console.log("Error",error);
+        res.json({message:false, error:error})
     }
 }
 

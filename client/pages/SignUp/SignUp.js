@@ -43,6 +43,16 @@ function SignUp() {
             password: password,
             gender: selectedGender,
           });
+          if(response.data.message){
+            Alert.alert("Warning","Register success, please log in",[
+              {text:'OK', style:'cancel', onPress:()=>navigation.navigate("Login")}
+            ])
+          }else{
+            Alert.alert("Warning","Something went wrong, please try again",[
+              {text:'OK', style:'cancel', onPress:()=>{setFirstName(""), setLastName(""),setEmail(""),setPassword(""),setSelectedGender(""),setAgreeChecked(false)}}
+            ])
+          }
+        
           console.log(response.data);
          
         }

@@ -1,43 +1,57 @@
 import React, { useContext, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from "react-native";
 import Input from "../../components/Input";
 import { LinearGradient } from "expo-linear-gradient";
 import Checkbox from "expo-checkbox";
 import Button from "../../components/Button";
-import { useNavigation } from "@react-navigation/native";
-import axios from 'axios'
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import axios from "axios";
 import { apihost } from "../../API/url";
 import { GlobalContext } from "../../Context/GlobalStates";
 
 function Login() {
   const navigation = useNavigation();
-  const {setUsername,setCurrentUserId} = useContext(GlobalContext);
-  const [email,setEmail] = useState("");
-  const [password,setPassword] = useState("");
+  const { setUsername, setCurrentUserId } = useContext(GlobalContext);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberChecked, setRememberChecked] = useState(false);
-  const handleLogin = async()=>{
+  useFocusEffect(
+    React.useCallback(() => {
+      setEmail("");
+      setPassword("");
+    }, [])
+  );
+
+  const handleLogin = async () => {
     try {
-      const response = await axios.post(`${apihost}/login`,{
-        email:email,
-        password:password
-      })
-      console.log(response.data);
-      console.log(response.data.username);
-      console.log(response.data.currentId);
+      const response = await axios.post(`${apihost}/login`, {
+        email: email,
+        password: password,
+      });
+      // console.log(response.data);
+      // console.log(response.data.username);
+      // console.log(response.data.currentId);
       setUsername(response.data.username);
       setCurrentUserId(response.data.currentId);
 
-      if(response.data.message==="Giriş Başarılı"){
+      if (response.data.message === "Giriş Başarılı") {
         navigation.navigate("Home");
-      }else{
-        Alert.alert("Hata",response.data.error)
+      } else {
+        Alert.alert("Hata", response.data.error);
         setEmail("");
         setPassword("");
       }
     } catch (error) {
-      console.log("Error",error);
+      console.log("Error", error);
     }
-  }
+  };
   return (
     <View style={{ flex: 1 }}>
       <LinearGradient
@@ -63,21 +77,23 @@ function Login() {
               borderWidth={1}
               borderColor={"#FFF"}
               placeholderTextColor={"#FFF"}
-              onChangeText={(text)=>setEmail(text)}
+              onChangeText={(text) => setEmail(text)}
               padding={15}
               borderRadius={25}
               color={"#FFF"}
+              value={email}
             />
             <Input
               placeholder={"Password"}
               borderWidth={1}
               borderColor={"#FFF"}
               placeholderTextColor={"#FFF"}
-              onChangeText={(text)=>setPassword(text)}
+              onChangeText={(text) => setPassword(text)}
               padding={15}
               borderRadius={25}
               color={"#fff"}
               secureTextEntry={true}
+              value={password}
             />
             <View
               style={{ flexDirection: "row", justifyContent: "space-between" }}
@@ -116,11 +132,20 @@ function Login() {
                 padding={15}
               />
             </View>
-            <View style = {{flexDirection:'row', justifyContent:'space-between'}}>
-                <Text style = {{color:'#FFF',fontSize:17,fontWeight:'500'}}>Don't have an account?</Text>
-                <TouchableOpacity onPress={()=> navigation.navigate("SignUp")}>
-                <Text style = {{fontSize:17, color:"#3B21B2",fontWeight:'500'}}> Sign Up</Text>
-                </TouchableOpacity>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <Text style={{ color: "#FFF", fontSize: 17, fontWeight: "500" }}>
+                Don't have an account?
+              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
+                <Text
+                  style={{ fontSize: 17, color: "#3B21B2", fontWeight: "500" }}
+                >
+                  {" "}
+                  Sign Up
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -137,7 +162,7 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     flex: 1,
-    marginBottom:90
+    marginBottom: 90,
   },
   inputsContainer: {
     marginHorizontal: 32,

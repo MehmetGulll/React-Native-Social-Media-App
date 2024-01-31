@@ -114,7 +114,11 @@ function Home() {
     setSearchUsers(text);
     if (text.length >= 3) {
       try {
-        const response = await axios.get(`${apihost}/searchUser/${text}`);
+        const response = await axios.get(`${apihost}/searchUser/${text}`, {
+          params: {
+            currentUserId: currentUserId,
+          },
+        });
         console.log(response.data);
         setUsers(response.data);
       } catch (error) {
@@ -293,7 +297,11 @@ function Home() {
                     },
                   })
                 }
-                style = {{borderBottomWidth:1, padding:10, borderColor:'#D3D3D3'}}
+                style={{
+                  borderBottomWidth: 1,
+                  padding: 10,
+                  borderColor: "#D3D3D3",
+                }}
               >
                 <Text>
                   {user.firstname} {user.lastname}
@@ -499,6 +507,12 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     padding: 15,
     zIndex: 1,
+    position:'absolute',
+    top:55,
+    width:'90%',
+    marginHorizontal:15,
+    borderBottomRightRadius:15,
+    borderBottomLeftRadius:15
   },
   postCommentsContainer: {
     marginHorizontal: 30,

@@ -12,21 +12,39 @@ import { LinearGradient } from "expo-linear-gradient";
 import { GlobalContext } from "../../Context/GlobalStates";
 import Button from "../../components/Button";
 import axios from "axios";
+import { GestureHandlerRootView, FlatList } from "react-native-gesture-handler";
 import { apihost } from "../../API/url";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 function UserProfile({ route }) {
   const { username, userId } = route.params;
   const { currentUserId } = useContext(GlobalContext);
   const [post, setPost] = useState([]);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [selectedItem,setSelectedItem] = useState(null);
+  const [isOpenBottomSheet, setIsOpenBottomSheet] = useState(0);
+  const bottomSheetRef = useRef(null);
+  const snapPoints = useMemo(() => ["%25", "50%"], []);
+  const handlePresentModalPress = useCallback((postId) => {
+    setSelectedItem(postId);
+    setIsOpenBottomSheet(1);
+    const fetchComments = async () => {
+      try {
+        console.log("Çalıştı");
+        const response = await axios.get(`${apihost}/getComments/${postId}`);
+        setComments(response.data);
+      } catch (error) {
+        console.log("Error", error);
+      }
+    };
+    fetchComments();
+  }, []);
   useEffect(() => {
     const checkFollow = async () => {
       try {
         const response = await axios.post(`${apihost}/isFollowing`, {
-          
-            follower: currentUserId,
-            followee: userId,
-         
+          follower: currentUserId,
+          followee: userId,
         });
         setIsFollowing(response.data.isFollowing);
         console.log(response.data);
@@ -69,7 +87,7 @@ function UserProfile({ route }) {
       try {
         const response = await axios.get(`${apihost}/getUserPosts/${username}`);
         setPost(response.data);
-      } catch (error) {
+      } catch (error) { 
         console.log("Error", error);
       }
     };
@@ -201,7 +219,7 @@ function UserProfile({ route }) {
                         marginLeft: 2,
                       }}
                     >
-                      999
+                      {item.likes.length}
                     </Text>
                   </View>
                   <View
@@ -211,21 +229,25 @@ function UserProfile({ route }) {
                       marginLeft: 12,
                     }}
                   >
-                    <Image
-                      source={require("../../assets/icons.png")}
-                      width={24}
-                      height={24}
-                    />
-                    <Text
-                      style={{
-                        color: "#E5D7F7",
-                        fontSize: 13,
-                        fontWeight: "500",
-                        marginLeft: 2,
-                      }}
+                    <TouchableOpacity
+                      onPress={() => handlePresentModalPress(item._id)}
                     >
-                      320
-                    </Text>
+                      <Image
+                        source={require("../../assets/icons.png")}
+                        width={24}
+                        height={24}
+                      />
+                      <Text
+                        style={{
+                          color: "#E5D7F7",
+                          fontSize: 13,
+                          fontWeight: "500",
+                          marginLeft: 2,
+                        }}
+                      >
+                        Show comments
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
               </View>

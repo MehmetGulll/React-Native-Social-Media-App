@@ -12,7 +12,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { GlobalContext } from "../../Context/GlobalStates";
 import Button from "../../components/Button";
 import axios from "axios";
-import { GestureHandlerRootView, FlatList } from "react-native-gesture-handler";
+import { GestureHandlerRootView} from "react-native-gesture-handler";
 import { apihost } from "../../API/url";
 import { TouchableOpacity } from "react-native-gesture-handler";
 

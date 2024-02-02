@@ -39,20 +39,16 @@ function Home() {
   const [notifications, setNotifications] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [allDataLoaded, setAllDataLoaded] = useState(false);
   const navigation = useNavigation();
   const { currentUserId, setNotificationsModal, notificationsModal } =
     useContext(GlobalContext);
-
-  const Wait = (duration = 1000) => {
-    return new Promise((resolve) => {
-      setTimeout(resolve, duration);
-    });
-  };
-
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = () => {
     setRefresh(true);
-    Wait(2000).then(() => setRefresh(false));
-  }, []);
+    setTimeout(() => {
+      setRefresh(false);
+    }, 2000);
+  };
   const [selectedItem, setSelectedItem] = useState(null);
   const [isOpenBottomSheet, setIsOpenBottomSheet] = useState(0);
   const bottomSheetRef = useRef(null);
@@ -75,17 +71,21 @@ function Home() {
     setIsOpenBottomSheet(index);
   }, []);
 
+  const getPosts = async () => {
+  
+    try {
+      const response = await axios.post(`${apihost}/getFollowedUsersPosts`, {
+        userId: currentUserId,
+        page: page,
+      });
+      setPosts((oldPosts) => [...oldPosts, ...response.data]);
+      setPage(page + 1);
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
+
   useEffect(() => {
-    const getPosts = async () => {
-      try {
-        const response = await axios.post(`${apihost}/getFollowedUsersPosts`, {
-          userId: currentUserId,
-        });
-        setPosts(response.data);
-      } catch (error) {
-        console.log("Error", error);
-      }
-    };
     const fetchLikedPosts = async () => {
       const storeLikedPosts = await getLikedPosts();
       setLikedPosts(storeLikedPosts);
@@ -313,9 +313,14 @@ function Home() {
         <FlatList
           contentContainerStyle={{ paddingBottom: 150 }}
           data={posts}
-          keyExtractor={(item) => item._id}
+          keyExtractor={(item,index) => index.toString()}
+          onEndReached={getPosts}
+          onEndReachedThreshold={0.5}
           refreshControl={
-            <RefreshControl refreshing={refresh} onRefresh={onRefresh} />
+            <RefreshControl
+              refreshing={refresh}
+              onRefresh={() => onRefresh()}
+            />
           }
           renderItem={({ item }) => {
             const date = new Date(item.createdAt);
@@ -507,12 +512,12 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     padding: 15,
     zIndex: 1,
-    position:'absolute',
-    top:55,
-    width:'90%',
-    marginHorizontal:15,
-    borderBottomRightRadius:15,
-    borderBottomLeftRadius:15
+    position: "absolute",
+    top: 55,
+    width: "90%",
+    marginHorizontal: 15,
+    borderBottomRightRadius: 15,
+    borderBottomLeftRadius: 15,
   },
   postCommentsContainer: {
     marginHorizontal: 30,

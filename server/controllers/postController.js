@@ -55,8 +55,12 @@ exports.deletePost = async (req, res) => {
 };
 
 exports.getPost = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 20;
+  const skip = (page - 1) * limit;
+
   try {
-    const posts = await Post.find();
+    const posts = await Post.find().skip(skip).limit(limit);
     res.json(posts);
   } catch (error) {
     console.log("Error the all post", error);

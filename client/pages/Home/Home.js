@@ -39,7 +39,7 @@ function Home() {
   const [notifications, setNotifications] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [allDataLoaded, setAllDataLoaded] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const navigation = useNavigation();
   const { currentUserId, setNotificationsModal, notificationsModal } =
     useContext(GlobalContext);
@@ -72,18 +72,21 @@ function Home() {
   }, []);
 
   const getPosts = async () => {
-  
+    if (!hasMore) return; 
     try {
       const response = await axios.post(`${apihost}/getFollowedUsersPosts`, {
         userId: currentUserId,
         page: page,
       });
-      setPosts((oldPosts) => [...oldPosts, ...response.data]);
+      setPosts((oldPosts) => [...oldPosts, ...response.data.posts]);
+      setHasMore(response.data.hasMore);
       setPage(page + 1);
     } catch (error) {
       console.log("Error", error);
     }
   };
+  
+  
 
   useEffect(() => {
     const fetchLikedPosts = async () => {

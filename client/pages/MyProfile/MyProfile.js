@@ -37,6 +37,8 @@ function MyProfile() {
   const [commentText, setCommentText] = useState("");
   const [isOpenBottomSheet, setIsOpenBottomSheet] = useState(0);
   const [isOpenBottomSheet2, setIsOpenBottomSheet2] = useState(0);
+  const [followerCount,setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["%25", "50%"], []);
   const handlePresentModalPress = useCallback((postId) => {
@@ -97,7 +99,30 @@ function MyProfile() {
         console.log("Error", error);
       }
     };
+    const getFollowerCount = async()=>{
+      try {
+        const response = await axios.post(`${apihost}/getFollowerCount`,{
+          userId:currentUserId
+        })
+        setFollowerCount(response.data.followerCount);
+      } catch (error) {
+        console.log("Error",error);
+      }
+    };
+    const getFollowingCount = async()=>{
+      try {
+        const response = await axios.post(`${apihost}/getFollowingCount`,{
+          userId:currentUserId
+        })
+        setFollowingCount(response.data.followingCount);
+      } catch (error) {
+        console.log("Error",error);
+      }
+    }
     fetchPosts();
+    getFollowerCount();
+    getFollowingCount();
+   
   }, [username, post]);
 
   const deletePost = async () => {
@@ -175,7 +200,7 @@ function MyProfile() {
           </View>
           <View style={styles.postFollow}>
             <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "600" }}>
-              12K
+              {followerCount}
             </Text>
             <Text style={{ color: "#FFF", fontSize: 16, fontWeight: "400" }}>
               Followers
@@ -183,7 +208,7 @@ function MyProfile() {
           </View>
           <View style={styles.postFollow}>
             <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "600" }}>
-              200
+              {followingCount}
             </Text>
             <Text style={{ color: "#FFF", fontSize: 16, fontWeight: "400" }}>
               Following

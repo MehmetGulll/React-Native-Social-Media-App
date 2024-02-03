@@ -51,3 +51,23 @@ exports.checkFollow = async (req, res) => {
     res.json({ message: error });
   }
 };
+
+exports.getFollowerCount = async(req,res) =>{
+  try {
+    const followerCount = await Follow.countDocuments({followee:req.body.userId});
+    res.json({followerCount});
+  } catch (error) {
+    console.log("Error",error);
+    res.json({message:error})
+  }
+}
+
+exports.getFollowingCount = async(req,res)=>{
+  try {
+    const followingCount = await Follow.countDocuments({follower:req.body.userId});
+    res.json({followingCount});
+  } catch (error) {
+    console.log("Error",error);
+    res.json({message:error})
+  }
+}

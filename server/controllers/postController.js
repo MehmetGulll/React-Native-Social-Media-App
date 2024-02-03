@@ -69,13 +69,21 @@ exports.getPost = async (req, res) => {
 };
 
 exports.getFollowedUsersPosts = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
   try {
     const followedUsers = await Follow.find({ follower: req.body.userId });
     const userIds = followedUsers.map((follow) => follow.followee);
     console.log(userIds);
-    const posts = await Post.find({ userId: { $in: userIds } });
+    const posts = await Post.find({ userId: { $in: userIds } })
+      .skip(skip)
+      .limit(limit);
     console.log(posts);
-    res.json(posts);
+    const totalPosts = await Post.countDocuments({ userId: { $in: userIds } });
+    const hasMore = totalPosts > skip + posts.length;
+    res.json({ posts, hasMore, totalPosts });
   } catch (error) {
     console.log("Error", error);
     res.status(500).json({ message: error });

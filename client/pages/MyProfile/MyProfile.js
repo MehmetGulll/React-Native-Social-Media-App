@@ -287,7 +287,7 @@ function MyProfile() {
                           marginLeft: 2,
                         }}
                       >
-                        999
+                        {item.likes.length}
                       </Text>
                     </View>
                     <TouchableOpacity

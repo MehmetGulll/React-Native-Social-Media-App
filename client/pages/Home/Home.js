@@ -15,6 +15,7 @@ import {
   TextInput,
   RefreshControl,
   Modal,
+  ActivityIndicator
 } from "react-native";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
@@ -26,6 +27,7 @@ import { GlobalContext } from "../../Context/GlobalStates";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { GestureHandlerRootView, FlatList } from "react-native-gesture-handler";
+import { BlurView } from "expo-blur";
 import { apihost } from "../../API/url";
 
 function Home() {
@@ -39,6 +41,7 @@ function Home() {
   const [notifications, setNotifications] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const navigation = useNavigation();
   const { currentUserId, setNotificationsModal, notificationsModal } =
@@ -72,7 +75,8 @@ function Home() {
   }, []);
 
   const getPosts = async () => {
-    if (!hasMore) return; 
+    if (!hasMore) return;
+    setPageLoading(true);
     try {
       const response = await axios.post(`${apihost}/getFollowedUsersPosts`, {
         userId: currentUserId,
@@ -81,12 +85,11 @@ function Home() {
       setPosts((oldPosts) => [...oldPosts, ...response.data.posts]);
       setHasMore(response.data.hasMore);
       setPage(page + 1);
+      setPageLoading(false);
     } catch (error) {
       console.log("Error", error);
     }
   };
-  
-  
 
   useEffect(() => {
     const fetchLikedPosts = async () => {
@@ -313,130 +316,134 @@ function Home() {
             ))}
           </View>
         )}
-        <FlatList
-          contentContainerStyle={{ paddingBottom: 150 }}
-          data={posts}
-          keyExtractor={(item,index) => index.toString()}
-          onEndReached={getPosts}
-          onEndReachedThreshold={0.5}
-          refreshControl={
-            <RefreshControl
-              refreshing={refresh}
-              onRefresh={() => onRefresh()}
-            />
-          }
-          renderItem={({ item }) => {
-            const date = new Date(item.createdAt);
-            const now = new Date();
-            const diffTime = Math.abs(now - date);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        {pageLoading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <FlatList
+            contentContainerStyle={{ paddingBottom: 150 }}
+            data={posts}
+            keyExtractor={(item, index) => index.toString()}
+            onEndReached={getPosts}
+            onEndReachedThreshold={0.5}
+            refreshControl={
+              <RefreshControl
+                refreshing={refresh}
+                onRefresh={() => onRefresh()}
+              />
+            }
+            renderItem={({ item }) => {
+              const date = new Date(item.createdAt);
+              const now = new Date();
+              const diffTime = Math.abs(now - date);
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            return (
-              <View
-                style={{
-                  backgroundColor: "#6D4ACD",
-                  marginHorizontal: 34,
-                  borderRadius: 20,
-                  marginTop: 23,
-                }}
-              >
-                <View style={{ marginTop: 14, marginHorizontal: 10 }}>
-                  <View>
-                    <Text
-                      style={{
-                        fontSize: 15,
-                        fontWeight: "500",
-                        color: "#FFF",
-                      }}
-                    >
-                      {item.username}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        fontWeight: "500",
-                        color: "#FFF",
-                      }}
-                    >
-                      {diffDays > 1
-                        ? `${diffDays} gün önce gönderildi`
-                        : "Bugün gönderildi"}
-                    </Text>
-                  </View>
-
-                  <View style={{ justifyContent: "center", marginTop: 6 }}>
-                    <Image
-                      source={{
-                        uri: `data:image/jpeg;base64,${item.content}`,
-                      }}
-                      width={307}
-                      height={210}
-                      borderRadius={20}
-                      style={{ marginTop: 10 }}
-                    />
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      marginTop: 11,
-                      marginBottom: 14,
-                    }}
-                  >
-                    <View
-                      style={{ flexDirection: "row", alignItems: "center" }}
-                    >
-                      <TouchableOpacity onPress={() => handleLike(item._id)}>
-                        <Image
-                          source={require("../../assets/heart.png")}
-                          width={24}
-                          height={24}
-                        />
-                      </TouchableOpacity>
-
+              return (
+                <View
+                  style={{
+                    backgroundColor: "#6D4ACD",
+                    marginHorizontal: 34,
+                    borderRadius: 20,
+                    marginTop: 23,
+                  }}
+                >
+                  <View style={{ marginTop: 14, marginHorizontal: 10 }}>
+                    <View>
                       <Text
                         style={{
-                          color: "#E5D7F7",
-                          fontSize: 13,
+                          fontSize: 15,
                           fontWeight: "500",
-                          marginLeft: 2,
+                          color: "#FFF",
                         }}
                       >
-                        {item.likes.length}
+                        {item.username}
                       </Text>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          fontWeight: "500",
+                          color: "#FFF",
+                        }}
+                      >
+                        {diffDays > 1
+                          ? `${diffDays} gün önce gönderildi`
+                          : "Bugün gönderildi"}
+                      </Text>
+                    </View>
+
+                    <View style={{ justifyContent: "center", marginTop: 6 }}>
+                      <Image
+                        source={{
+                          uri: `data:image/jpeg;base64,${item.content}`,
+                        }}
+                        width={307}
+                        height={210}
+                        borderRadius={20}
+                        style={{ marginTop: 10 }}
+                      />
                     </View>
                     <View
                       style={{
                         flexDirection: "row",
-                        alignItems: "center",
-                        marginLeft: 12,
+                        marginTop: 11,
+                        marginBottom: 14,
                       }}
                     >
-                      <TouchableOpacity
-                        onPress={() => handlePresentModalPress(item._id)}
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
                       >
-                        <Image
-                          source={require("../../assets/icons.png")}
-                          width={24}
-                          height={24}
-                        />
-                      </TouchableOpacity>
-                      <Text
+                        <TouchableOpacity onPress={() => handleLike(item._id)}>
+                          <Image
+                            source={require("../../assets/heart.png")}
+                            width={24}
+                            height={24}
+                          />
+                        </TouchableOpacity>
+
+                        <Text
+                          style={{
+                            color: "#E5D7F7",
+                            fontSize: 13,
+                            fontWeight: "500",
+                            marginLeft: 2,
+                          }}
+                        >
+                          {item.likes.length}
+                        </Text>
+                      </View>
+                      <View
                         style={{
-                          color: "#E5D7F7",
-                          fontSize: 13,
-                          fontWeight: "500",
-                          marginLeft: 2,
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginLeft: 12,
                         }}
                       >
-                        Show comments
-                      </Text>
+                        <TouchableOpacity
+                          onPress={() => handlePresentModalPress(item._id)}
+                        >
+                          <Image
+                            source={require("../../assets/icons.png")}
+                            width={24}
+                            height={24}
+                          />
+                        </TouchableOpacity>
+                        <Text
+                          style={{
+                            color: "#E5D7F7",
+                            fontSize: 13,
+                            fontWeight: "500",
+                            marginLeft: 2,
+                          }}
+                        >
+                          Show comments
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 </View>
-              </View>
-            );
-          }}
-        />
+              );
+            }}
+          />
+        )}
         <BottomSheet
           ref={bottomSheetRef}
           index={isOpenBottomSheet}

@@ -68,6 +68,7 @@ function MyProfile() {
   const handleSheetChanges2 = useCallback((index) => {
     setIsOpenBottomSheet2(index);
   }, []);
+ 
   const handleSendComment = async () => {
     console.log(selectedItem);
     console.log(currentUserId);
@@ -88,7 +89,9 @@ function MyProfile() {
     }
   };
 
-  const handleCloseSheet = () => bottomSheetRef.current.close();
+  const handleCloseSheet = () => {
+    setIsOpenBottomSheet(0);
+  }
 
   useEffect(() => {
     const fetchPosts = async () => {

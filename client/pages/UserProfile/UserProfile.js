@@ -1,4 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   View,
   Text,
@@ -12,7 +19,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { GlobalContext } from "../../Context/GlobalStates";
 import Button from "../../components/Button";
 import axios from "axios";
-import { GestureHandlerRootView} from "react-native-gesture-handler";
 import { apihost } from "../../API/url";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
@@ -21,7 +27,9 @@ function UserProfile({ route }) {
   const { currentUserId } = useContext(GlobalContext);
   const [post, setPost] = useState([]);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [selectedItem,setSelectedItem] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
   const [isOpenBottomSheet, setIsOpenBottomSheet] = useState(0);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["%25", "50%"], []);
@@ -87,10 +95,32 @@ function UserProfile({ route }) {
       try {
         const response = await axios.get(`${apihost}/getUserPosts/${username}`);
         setPost(response.data);
-      } catch (error) { 
+      } catch (error) {
         console.log("Error", error);
       }
     };
+    const getFollowerCount = async () => {
+      try {
+        const response = await axios.post(`${apihost}/getFollowerCount`, {
+          userId: currentUserId,
+        });
+        setFollowerCount(response.data.followerCount);
+      } catch (error) {
+        console.log("Error", error);
+      }
+    };
+    const getFollowingCount = async () => {
+      try {
+        const response = await axios.post(`${apihost}/getFollowingCount`, {
+          userId: currentUserId,
+        });
+        setFollowingCount(response.data.followingCount);
+      } catch (error) {
+        console.log("Error", error);
+      }
+    };
+    getFollowerCount();
+    getFollowingCount();
     fetchPosts();
   }, [username, post]);
 
@@ -99,115 +129,140 @@ function UserProfile({ route }) {
       colors={["#3B21B5", "#8F62D7", "#C69BE7"]}
       style={{ flex: 1 }}
     >
-      <ScrollView>
-        <View>
-          <ImageBackground
-            source={require("../../assets/profilebackground.png")}
-            style={{
-              padding: 150,
-              overflow: "hidden",
-              borderTopLeftRadius: 12,
-              borderTopRightRadius: 12,
-            }}
-          />
-          <Image
-            source={require("../../assets/profileimage.png")}
-            style={{ position: "absolute", top: 250, left: 150 }}
-          />
+      <View>
+        <ImageBackground
+          source={require("../../assets/profilebackground.png")}
+          style={{
+            padding: 100,
+            overflow: "hidden",
+            borderTopLeftRadius: 12,
+            borderTopRightRadius: 12,
+          }}
+        />
+        <Image
+          source={require("../../assets/profileimage.png")}
+          style={{ position: "absolute", top: 170, left: 150 }}
+        />
+      </View>
+      <View style={styles.userNameContainer}>
+        <Text style={styles.username}>{username}</Text>
+      </View>
+      <View style={styles.postFollowContainer}>
+        <View style={styles.postFollow}>
+          <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "600" }}>
+            {post.length}
+          </Text>
+          <Text style={{ color: "#FFF", fontSize: 16, fontWeight: "400" }}>
+            Post
+          </Text>
         </View>
-        <View style={styles.userNameContainer}>
-          <Text style={styles.username}>{username}</Text>
+        <View style={styles.postFollow}>
+          <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "600" }}>
+            {followingCount}
+          </Text>
+          <Text style={{ color: "#FFF", fontSize: 16, fontWeight: "400" }}>
+            Followers
+          </Text>
         </View>
-        <View style={styles.postFollowContainer}>
-          <View style={styles.postFollow}>
-            <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "600" }}>
-              {post.length}
-            </Text>
-            <Text style={{ color: "#FFF", fontSize: 16, fontWeight: "400" }}>
-              Post
-            </Text>
-          </View>
-          <View style={styles.postFollow}>
-            <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "600" }}>
-              12K
-            </Text>
-            <Text style={{ color: "#FFF", fontSize: 16, fontWeight: "400" }}>
-              Followers
-            </Text>
-          </View>
-          <View style={styles.postFollow}>
-            <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "600" }}>
-              200
-            </Text>
-            <Text style={{ color: "#FFF", fontSize: 16, fontWeight: "400" }}>
-              Following
-            </Text>
-          </View>
+        <View style={styles.postFollow}>
+          <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "600" }}>
+            {followerCount}
+          </Text>
+          <Text style={{ color: "#FFF", fontSize: 16, fontWeight: "400" }}>
+            Following
+          </Text>
         </View>
-        <View style={styles.buttonContainer}>
-          <View style={{ flex: 1 }}>
-            {isFollowing ? (
-              <Button
-                text={"Unfollow"}
-                backgroundColor={"#635A8F"}
-                color={"#FFF"}
-                padding={12}
-                onPress={handleUnFollow}
-              />
-            ) : (
-              <Button
-                text={"Follow"}
-                backgroundColor={"#635A8F"}
-                color={"#FFF"}
-                padding={12}
-                onPress={handleFollow}
-              />
-            )}
-          </View>
-          <View style={{ flex: 1 }}>
+      </View>
+      <View style={styles.buttonContainer}>
+        <View style={{ flex: 1 }}>
+          {isFollowing ? (
             <Button
-              text={"Message"}
-              backgroundColor={"#FFF"}
-              color={"#635A8F"}
+              text={"Unfollow"}
+              backgroundColor={"#635A8F"}
+              color={"#FFF"}
               padding={12}
+              onPress={handleUnFollow}
             />
-          </View>
+          ) : (
+            <Button
+              text={"Follow"}
+              backgroundColor={"#635A8F"}
+              color={"#FFF"}
+              padding={12}
+              onPress={handleFollow}
+            />
+          )}
         </View>
-        <FlatList
-          contentContainerStyle={{ marginBottom: 150 }}
-          data={post}
-          keyExtractor={(item) => item._id}
-          renderItem={({ item }) => (
-            <View
-              style={{
-                backgroundColor: "#6D4ACD",
-                marginHorizontal: 34,
-                borderRadius: 20,
-                marginTop: 23,
-              }}
-            >
-              <View style={{ marginTop: 14, marginHorizontal: 10 }}>
-                <View style={{ justifyContent: "center", marginTop: 6 }}>
+        <View style={{ flex: 1 }}>
+          <Button
+            text={"Message"}
+            backgroundColor={"#FFF"}
+            color={"#635A8F"}
+            padding={12}
+          />
+        </View>
+      </View>
+      <FlatList
+        contentContainerStyle={{ marginBottom: 150 }}
+        data={post}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <View
+            style={{
+              backgroundColor: "#6D4ACD",
+              marginHorizontal: 34,
+              borderRadius: 20,
+              marginTop: 23,
+            }}
+          >
+            <View style={{ marginTop: 14, marginHorizontal: 10 }}>
+              <View style={{ justifyContent: "center", marginTop: 6 }}>
+                <Image
+                  source={{
+                    uri: `data:image/jpeg;base64,${item.content}`,
+                  }}
+                  width={307}
+                  height={210}
+                  borderRadius={20}
+                  style={{ marginTop: 10 }}
+                />
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginTop: 11,
+                  marginBottom: 14,
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <Image
-                    source={{
-                      uri: `data:image/jpeg;base64,${item.content}`,
-                    }}
-                    width={307}
-                    height={210}
-                    borderRadius={20}
-                    style={{ marginTop: 10 }}
+                    source={require("../../assets/heart.png")}
+                    width={24}
+                    height={24}
                   />
+                  <Text
+                    style={{
+                      color: "#E5D7F7",
+                      fontSize: 13,
+                      fontWeight: "500",
+                      marginLeft: 2,
+                    }}
+                  >
+                    {item.likes.length}
+                  </Text>
                 </View>
                 <View
                   style={{
                     flexDirection: "row",
-                    marginTop: 11,
-                    marginBottom: 14,
+                    alignItems: "center",
+                    marginLeft: 12,
                   }}
                 >
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <TouchableOpacity
+                    onPress={() => handlePresentModalPress(item._id)}
+                  >
                     <Image
-                      source={require("../../assets/heart.png")}
+                      source={require("../../assets/icons.png")}
                       width={24}
                       height={24}
                     />
@@ -219,42 +274,15 @@ function UserProfile({ route }) {
                         marginLeft: 2,
                       }}
                     >
-                      {item.likes.length}
+                      Show comments
                     </Text>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      marginLeft: 12,
-                    }}
-                  >
-                    <TouchableOpacity
-                      onPress={() => handlePresentModalPress(item._id)}
-                    >
-                      <Image
-                        source={require("../../assets/icons.png")}
-                        width={24}
-                        height={24}
-                      />
-                      <Text
-                        style={{
-                          color: "#E5D7F7",
-                          fontSize: 13,
-                          fontWeight: "500",
-                          marginLeft: 2,
-                        }}
-                      >
-                        Show comments
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                  </TouchableOpacity>
                 </View>
               </View>
             </View>
-          )}
-        />
-      </ScrollView>
+          </View>
+        )}
+      />
     </LinearGradient>
   );
 }

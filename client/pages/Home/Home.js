@@ -15,7 +15,7 @@ import {
   TextInput,
   RefreshControl,
   Modal,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
@@ -43,6 +43,7 @@ function Home() {
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
+  const [hasMoreNotifications, setHasMoreNotifications] = useState(true)
   const navigation = useNavigation();
   const { currentUserId, setNotificationsModal, notificationsModal } =
     useContext(GlobalContext);
@@ -109,9 +110,10 @@ function Home() {
           page: page,
         },
       });
-      setNotifications(response.data);
+      setNotifications((oldNotifications)=>[...oldNotifications, ...response.data.notifications]);
+      setHasMore(response.data.hasMore);
       setLoading(false);
-      console.log(response.data);
+      console.log("bildirimler",response.data);
     };
     fetchNotifications();
   }, [notificationsModal]);
@@ -197,7 +199,7 @@ function Home() {
   };
 
   const handleLoadMore = () => {
-    if (!loading) {
+    if (!loading && hasMore) {
       setPage(page + 1);
     }
   };
@@ -330,6 +332,34 @@ function Home() {
                 refreshing={refresh}
                 onRefresh={() => onRefresh()}
               />
+            }
+            ListEmptyComponent={
+              <View
+                style={{
+                  alignItems: "center",
+                  marginTop: 80,
+                  flex: 1,
+                  justifyContent: "center",
+                }}
+              >
+                <Image
+                  source={{
+                    uri: "https://i.pinimg.com/originals/49/e5/8d/49e58d5922019b8ec4642a2e2b9291c2.png",
+                  }}
+                  width={250}
+                  height={250}
+                />
+                <Text
+                  style={{
+                    marginTop: 25,
+                    fontSize: 24,
+                    color: "#FFF",
+                    fontWeight: "700",
+                  }}
+                >
+                  Start following someone now!
+                </Text>
+              </View>
             }
             renderItem={({ item }) => {
               const date = new Date(item.createdAt);

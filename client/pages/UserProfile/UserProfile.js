@@ -14,13 +14,13 @@ import {
   StyleSheet,
   FlatList,
   ScrollView,
+  TouchableOpacity
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { GlobalContext } from "../../Context/GlobalStates";
 import Button from "../../components/Button";
 import axios from "axios";
 import { apihost } from "../../API/url";
-import { TouchableOpacity } from "react-native-gesture-handler";
 
 function UserProfile({ route }) {
   const { username, userId } = route.params;
@@ -102,17 +102,18 @@ function UserProfile({ route }) {
     const getFollowerCount = async () => {
       try {
         const response = await axios.post(`${apihost}/getFollowerCount`, {
-          userId: currentUserId,
+          userId: userId,
         });
         setFollowerCount(response.data.followerCount);
       } catch (error) {
         console.log("Error", error);
       }
     };
+
     const getFollowingCount = async () => {
       try {
         const response = await axios.post(`${apihost}/getFollowingCount`, {
-          userId: currentUserId,
+          userId: userId,
         });
         setFollowingCount(response.data.followingCount);
       } catch (error) {
@@ -158,7 +159,7 @@ function UserProfile({ route }) {
         </View>
         <View style={styles.postFollow}>
           <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "600" }}>
-            {followingCount}
+            {followerCount}
           </Text>
           <Text style={{ color: "#FFF", fontSize: 16, fontWeight: "400" }}>
             Followers
@@ -166,7 +167,7 @@ function UserProfile({ route }) {
         </View>
         <View style={styles.postFollow}>
           <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "600" }}>
-            {followerCount}
+            {followingCount}
           </Text>
           <Text style={{ color: "#FFF", fontSize: 16, fontWeight: "400" }}>
             Following
@@ -203,7 +204,7 @@ function UserProfile({ route }) {
         </View>
       </View>
       <FlatList
-        contentContainerStyle={{ marginBottom: 150 }}
+        contentContainerStyle={{ paddingBottom: 109 }}
         data={post}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
@@ -248,7 +249,7 @@ function UserProfile({ route }) {
                       marginLeft: 2,
                     }}
                   >
-                    {item.likes.length}
+                    {item.likes.length} 
                   </Text>
                 </View>
                 <View

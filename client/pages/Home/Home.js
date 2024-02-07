@@ -43,7 +43,7 @@ function Home() {
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
-  const [hasMoreNotifications, setHasMoreNotifications] = useState(true);
+
   const navigation = useNavigation();
   const { currentUserId, setNotificationsModal, notificationsModal } =
     useContext(GlobalContext);
@@ -116,7 +116,6 @@ function Home() {
       ]);
       setHasMore(response.data.hasMore);
       setLoading(false);
-      console.log("bildirimler", response.data);
     };
     fetchNotifications();
   }, [notificationsModal]);
@@ -141,7 +140,7 @@ function Home() {
   };
   const handleLike = async (postId) => {
     try {
-      const isLiked = likedPosts[postId];
+      const isLiked = likedPosts[postId] || false;
       const response = isLiked
         ? await axios.post(`${apihost}/posts/${postId}/unlike`, {
             userId: currentUserId,
@@ -299,7 +298,7 @@ function Home() {
                             fontSize: 16,
                           }}
                         >
-                          {item.follower.firstname} followed you.
+                          {item.follower.firstname} {item.follower.lastname} followed you.
                         </Text>
                         <Text style={{ color: "#a9a9a9", marginBottom: 5 }}>
                           Az önce
@@ -443,11 +442,8 @@ function Home() {
                         style={{ flexDirection: "row", alignItems: "center" }}
                       >
                         <TouchableOpacity onPress={() => handleLike(item._id)}>
-                          <Image
-                            source={require("../../assets/heart.png")}
-                            width={24}
-                            height={24}
-                          />
+                          {likedPosts[item._id] ? <Image source={require("../../assets/heart.png")}/> : <Ionicons name ="heart-outline" size={24} color={"#FFF"}/>}
+                          
                         </TouchableOpacity>
 
                         <Text

@@ -43,7 +43,7 @@ function Home() {
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
-  const [hasMoreNotifications, setHasMoreNotifications] = useState(true)
+  const [hasMoreNotifications, setHasMoreNotifications] = useState(true);
   const navigation = useNavigation();
   const { currentUserId, setNotificationsModal, notificationsModal } =
     useContext(GlobalContext);
@@ -110,10 +110,13 @@ function Home() {
           page: page,
         },
       });
-      setNotifications((oldNotifications)=>[...oldNotifications, ...response.data.notifications]);
+      setNotifications((oldNotifications) => [
+        ...oldNotifications,
+        ...response.data.notifications,
+      ]);
       setHasMore(response.data.hasMore);
       setLoading(false);
-      console.log("bildirimler",response.data);
+      console.log("bildirimler", response.data);
     };
     fetchNotifications();
   }, [notificationsModal]);
@@ -232,12 +235,30 @@ function Home() {
           <TouchableOpacity
             onPress={() => setNotificationsModal(!notificationsModal)}
           >
-            <Image
-              source={require("../../assets/Vector.png")}
-              width={33}
-              height={33}
-              style={{ marginLeft: 19 }}
-            />
+            <View style={{ marginLeft: 19 }}>
+              <Image
+                source={require("../../assets/Vector.png")}
+                width={33}
+                height={33}
+              />
+              {notifications.length > 0 && (
+                <View
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: 0,
+                    backgroundColor: "red",
+                    borderRadius: 10,
+                    width: 20,
+                    height: 20,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: "white" }}>{notifications.length}</Text>
+                </View>
+              )}
+            </View>
           </TouchableOpacity>
 
           <Modal

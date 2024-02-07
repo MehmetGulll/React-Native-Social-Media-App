@@ -27,7 +27,6 @@ import { GlobalContext } from "../../Context/GlobalStates";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { GestureHandlerRootView, FlatList } from "react-native-gesture-handler";
-import { BlurView } from "expo-blur";
 import { apihost } from "../../API/url";
 
 function Home() {
@@ -298,7 +297,8 @@ function Home() {
                             fontSize: 16,
                           }}
                         >
-                          {item.follower.firstname} {item.follower.lastname} followed you.
+                          {item.follower.firstname} {item.follower.lastname}{" "}
+                          followed you.
                         </Text>
                         <Text style={{ color: "#a9a9a9", marginBottom: 5 }}>
                           Az önce
@@ -442,8 +442,15 @@ function Home() {
                         style={{ flexDirection: "row", alignItems: "center" }}
                       >
                         <TouchableOpacity onPress={() => handleLike(item._id)}>
-                          {likedPosts[item._id] ? <Image source={require("../../assets/heart.png")}/> : <Ionicons name ="heart-outline" size={24} color={"#FFF"}/>}
-                          
+                          {likedPosts[item._id] ? (
+                            <Image source={require("../../assets/heart.png")} />
+                          ) : (
+                            <Ionicons
+                              name="heart-outline"
+                              size={24}
+                              color={"#FFF"}
+                            />
+                          )}
                         </TouchableOpacity>
 
                         <Text
@@ -457,22 +464,21 @@ function Home() {
                           {item.likes.length}
                         </Text>
                       </View>
-                      <View
+
+                      <TouchableOpacity
+                        onPress={() => handlePresentModalPress(item._id)}
                         style={{
                           flexDirection: "row",
                           alignItems: "center",
                           marginLeft: 12,
                         }}
                       >
-                        <TouchableOpacity
-                          onPress={() => handlePresentModalPress(item._id)}
-                        >
-                          <Image
-                            source={require("../../assets/icons.png")}
-                            width={24}
-                            height={24}
-                          />
-                        </TouchableOpacity>
+                        <Image
+                          source={require("../../assets/icons.png")}
+                          width={24}
+                          height={24}
+                        />
+
                         <Text
                           style={{
                             color: "#E5D7F7",
@@ -483,7 +489,7 @@ function Home() {
                         >
                           Show comments
                         </Text>
-                      </View>
+                      </TouchableOpacity>
                     </View>
                   </View>
                 </View>

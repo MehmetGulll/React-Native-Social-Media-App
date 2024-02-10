@@ -360,7 +360,7 @@ function MyProfile() {
             }}
           >
             <TextInput
-              placeholder="Yorumunu Yaz..."
+              placeholder="Write Comment..."
               style={{ borderBottomWidth: 1, flex: 1 }}
               onChangeText={(text) => setCommentText(text)}
             />

@@ -7,5 +7,6 @@ router.delete('/unfollow', followController.deleteFollowUser);
 router.post('/isFollowing', followController.checkFollow);
 router.post('/getFollowerCount',followController.getFollowerCount);
 router.post('/getFollowingCount',followController.getFollowingCount);
+router.post('/getFollowing',followController.getFollowing);
 
 module.exports = router;

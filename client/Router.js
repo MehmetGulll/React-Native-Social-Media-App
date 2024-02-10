@@ -17,6 +17,7 @@ import { GlobalContext, GlobalProvider } from "./Context/GlobalStates";
 import React, { useContext } from "react";
 import { apihost } from "./API/url";
 import UserProfile from "./pages/UserProfile/UserProfile";
+import TextMessage from "./pages/TextMessage/TextMessage";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -194,6 +195,7 @@ function Router() {
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="SignUp" component={SignUp} />
             <Stack.Screen name="Home" component={BottomTabNavigator} />
+            <Stack.Screen name ="TextMessage" component={TextMessage} />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaView>

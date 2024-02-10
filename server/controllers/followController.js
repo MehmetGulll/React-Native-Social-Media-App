@@ -1,6 +1,6 @@
 const express = require("express");
 const Follow = require("../models/Follow");
-const Notification = require('../models/Notifications')
+const Notification = require("../models/Notifications");
 
 exports.followUser = async (req, res) => {
   const follow = new Follow({
@@ -52,41 +52,71 @@ exports.checkFollow = async (req, res) => {
   }
 };
 
-// exports.getFollowerCount = async(req,res) =>{
-//   try {
-//     const followerCount = await Follow.countDocuments({followee:req.body.userId});
-//     res.json({followerCount});
-//   } catch (error) {
-//     console.log("Error",error);
-//     res.json({message:error})
-//   }
-// }
-
-// exports.getFollowingCount = async(req,res)=>{
-//   try {
-//     const followingCount = await Follow.countDocuments({follower:req.body.userId});
-//     res.json({followingCount});
-//   } catch (error) {
-//     console.log("Error",error);
-//     res.json({message:error})
-//   }
-// }
-exports.getFollowerCount = async(req,res) =>{
+exports.getFollowerCount = async (req, res) => {
   try {
-    const followerCount = await Follow.countDocuments({followee:req.body.userId});
-    res.json({followerCount});
+    const followerCount = await Follow.countDocuments({
+      followee: req.body.userId,
+    });
+    res.json({ followerCount });
   } catch (error) {
-    console.log("Error",error);
-    res.json({message:error})
+    console.log("Error", error);
+    res.json({ message: error });
   }
-}
+};
 
-exports.getFollowingCount = async(req,res)=>{
+exports.getFollowingCount = async (req, res) => {
   try {
-    const followingCount = await Follow.countDocuments({follower:req.body.userId});
-    res.json({followingCount});
+    const followingCount = await Follow.countDocuments({
+      follower: req.body.userId,
+    });
+    res.json({ followingCount });
   } catch (error) {
-    console.log("Error",error);
-    res.json({message:error})
+    console.log("Error", error);
+    res.json({ message: error });
+  }
+};
+// exports.getFollowing = async (req, res) => {
+//   const page = parseInt(req.query.page) || 1;
+//   const limit = parseInt(req.query.limit) || 20;
+//   const skip = (page - 1) * limit;
+
+//   try {
+//     const following = await Follow.find({
+//       follower: req.query.userId,
+//     })
+//       .populate("followee")
+//       .skip(skip)
+//       .limit(limit);
+
+//     const totalFollowing = await Follow.countDocuments({
+//       follower: req.query.userId,
+//     });
+//     const hasMore = totalFollowing > skip + following.length;
+
+//     res.json({ following, hasMore, totalFollowing });
+//   } catch (error) {
+//     console.log("Error", error);
+//     res.json({ message: error });
+//   }
+// };
+exports.getFollowing = async(req,res)=>{
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 20;
+  const skip = (page - 1) * limit;
+  try {
+    const following = await Follow.find({
+      follower:req.body.userId
+    })
+    .populate("followee")
+    .skip(skip)
+    .limit(limit);
+    const totalFollowing = await Follow.countDocuments({
+      follower:req.body.userId
+    });
+    const hasMore = totalFollowing > skip + following.length;
+    res.json({following, hasMore, totalFollowing})
+  } catch (error) {
+    console.log("Error");
+    res.json({message:error});
   }
 }

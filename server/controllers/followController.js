@@ -75,30 +75,7 @@ exports.getFollowingCount = async (req, res) => {
     res.json({ message: error });
   }
 };
-// exports.getFollowing = async (req, res) => {
-//   const page = parseInt(req.query.page) || 1;
-//   const limit = parseInt(req.query.limit) || 20;
-//   const skip = (page - 1) * limit;
 
-//   try {
-//     const following = await Follow.find({
-//       follower: req.query.userId,
-//     })
-//       .populate("followee")
-//       .skip(skip)
-//       .limit(limit);
-
-//     const totalFollowing = await Follow.countDocuments({
-//       follower: req.query.userId,
-//     });
-//     const hasMore = totalFollowing > skip + following.length;
-
-//     res.json({ following, hasMore, totalFollowing });
-//   } catch (error) {
-//     console.log("Error", error);
-//     res.json({ message: error });
-//   }
-// };
 exports.getFollowing = async(req,res)=>{
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 20;

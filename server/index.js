@@ -8,6 +8,7 @@ const followRoutes = require('./routes/followRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const notificationRoutes = require('./routes/notificationRoutes')
 const messageRoutes = require('./routes/messageRoutes');
+const requestMessage = require('./routes/requestMessagesRoutes')
 const path = require('path');
 
 const app = express();
@@ -24,7 +25,7 @@ app.use(followRoutes);
 app.use(commentRoutes);
 app.use(notificationRoutes);
 app.use(messageRoutes);
-
+app.use(requestMessage);
 const PORT = 5000;
 
 app.listen(PORT, ()=>console.log(`Server running the port ${PORT}`));

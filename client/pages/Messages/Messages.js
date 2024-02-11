@@ -13,12 +13,14 @@ import { useNavigation } from "@react-navigation/native";
 import Input from "../../components/Input";
 import { apihost } from "../../API/url";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage"; 
 
 function Messages() {
   const [following, setFollowing] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [messageSendUsers, setMessageSendUsers] = useState([]);
   const { currentUserId } = useContext(GlobalContext);
   const navigation = useNavigation();
 
@@ -45,8 +47,30 @@ function Messages() {
         console.log("Error", error);
       }
     };
+    const loadMessageSendUsers = async () => {
+      const storedUsers = await AsyncStorage.getItem("messageSendUsers");
+      if (storedUsers) {
+        setMessageSendUsers(JSON.parse(storedUsers));
+      }
+    };
+    loadMessageSendUsers();
     getFollowing();
   }, []);
+
+  const handleSendMessage = (userId, firstname, lastname) => {
+    navigation.navigate("TextMessage", {
+      userId: userId,
+      firstname: firstname,
+      lastname: lastname,
+    });
+
+    const newUser = { userId, firstname, lastname };
+    setMessageSendUsers((prevUsers) => {
+      const updatedUsers = [...prevUsers, newUser];
+      AsyncStorage.setItem("messageSentUsers", JSON.stringify(updatedUsers));
+      return updatedUsers;
+    });
+  };
 
   return (
     <LinearGradient
@@ -87,11 +111,11 @@ function Messages() {
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() =>
-                  navigation.navigate("TextMessage", {
-                    userId: item.followee._id,
-                    firstname: item.followee.firstname,
-                    lastname: item.followee.lastname,
-                  })
+                  handleSendMessage(
+                    item.followee._id,
+                    item.followee.firstname,
+                    item.followee.lastname
+                  )
                 }
                 style={styles.followingUsers}
               >
@@ -105,9 +129,33 @@ function Messages() {
                 </Text>
               </TouchableOpacity>
             )}
+            showsHorizontalScrollIndicator={false}
           />
         </View>
-        <View></View>
+        <View style = {{backgroundColor:'red', alignSelf:'flex-end', marginTop:10}}>
+          <Text>RequestMessage</Text>
+        </View>
+        <View>
+          {messageSendUsers.map((user, index) => (
+            <TouchableOpacity
+              style={styles.lastMessageContainer}
+              key={index}
+              onPress={() =>
+                navigation.navigate("TextMessage", {
+                  userId: user.userId,
+                  firstname: user.firstname,
+                  lastname: user.lastname,
+                })
+              }
+            >
+              <View>
+                <Text style={styles.lastMessageUser}>
+                  {user.firstname} {user.lastname}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
     </LinearGradient>
   );
@@ -124,6 +172,16 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 16,
     fontWeight: "500",
+  },
+  lastMessageContainer: {
+    backgroundColor: "#635A8F",
+    marginTop: 15,
+  },
+  lastMessageUser: {
+    color: "#FFF",
+    fontSize: 18,
+    fontWeight: "500",
+    padding: 30,
   },
 });
 export default Messages;

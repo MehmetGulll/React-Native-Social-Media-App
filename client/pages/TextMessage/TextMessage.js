@@ -33,7 +33,7 @@ function TextMessage({ route }) {
       content: message,
     });
     setMessage("");
-    setMessages([...messages, response.data]); 
+    setMessages([...messages, response.data]);
   };
 
   return (
@@ -59,7 +59,21 @@ function TextMessage({ route }) {
             keyExtractor={(item, index) =>
               item.id ? item.id.toString() : index.toString()
             }
-            renderItem={({ item }) => <Text>{item.content}</Text>}
+            renderItem={({ item }) => (
+              <View
+                style={{
+                  alignSelf:
+                    item.sender === currentUserId ? "flex-end" : "flex-start",
+                  backgroundColor:
+                    item.sender === currentUserId ? "#635A8F" : "#635A8F",
+                    padding:20,
+                    marginVertical:15,
+                    borderRadius:25,
+                }}
+              >
+                <Text style={styles.messageText}>{item.content}</Text>
+              </View>
+            )}
           />
         </View>
         <View
@@ -116,6 +130,12 @@ const styles = StyleSheet.create({
     gap: 20,
     backgroundColor: "#4D426C",
     padding: 15,
+  },
+  messageText: {
+    color: "#FFF",
+    fontSize:18,
+    maxWidth:'80%',
+    flexWrap:'wrap'
   },
 });
 export default TextMessage;

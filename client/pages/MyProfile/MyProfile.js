@@ -13,9 +13,7 @@ import {
   Image,
   StyleSheet,
   FlatList,
-  ScrollView,
   TouchableOpacity,
-  Alert,
   TextInput,
 } from "react-native";
 import Button from "../../components/Button";
@@ -25,6 +23,7 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { LinearGradient } from "expo-linear-gradient";
 import { GlobalContext } from "../../Context/GlobalStates";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { apihost } from "../../API/url";
 
@@ -37,7 +36,7 @@ function MyProfile() {
   const [commentText, setCommentText] = useState("");
   const [isOpenBottomSheet, setIsOpenBottomSheet] = useState(0);
   const [isOpenBottomSheet2, setIsOpenBottomSheet2] = useState(0);
-  const [followerCount,setFollowerCount] = useState(0);
+  const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["%25", "50%"], []);
@@ -68,7 +67,7 @@ function MyProfile() {
   const handleSheetChanges2 = useCallback((index) => {
     setIsOpenBottomSheet2(index);
   }, []);
- 
+
   const handleSendComment = async () => {
     console.log(selectedItem);
     console.log(currentUserId);
@@ -91,7 +90,7 @@ function MyProfile() {
 
   const handleCloseSheet = () => {
     setIsOpenBottomSheet(0);
-  }
+  };
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -102,30 +101,29 @@ function MyProfile() {
         console.log("Error", error);
       }
     };
-    const getFollowerCount = async()=>{
+    const getFollowerCount = async () => {
       try {
-        const response = await axios.post(`${apihost}/getFollowerCount`,{
-          userId:currentUserId
-        })
+        const response = await axios.post(`${apihost}/getFollowerCount`, {
+          userId: currentUserId,
+        });
         setFollowerCount(response.data.followerCount);
       } catch (error) {
-        console.log("Error",error);
+        console.log("Error", error);
       }
     };
-    const getFollowingCount = async()=>{
+    const getFollowingCount = async () => {
       try {
-        const response = await axios.post(`${apihost}/getFollowingCount`,{
-          userId:currentUserId
-        })
+        const response = await axios.post(`${apihost}/getFollowingCount`, {
+          userId: currentUserId,
+        });
         setFollowingCount(response.data.followingCount);
       } catch (error) {
-        console.log("Error",error);
+        console.log("Error", error);
       }
-    }
+    };
     fetchPosts();
     getFollowerCount();
     getFollowingCount();
-   
   }, [username, post]);
 
   const deletePost = async () => {
@@ -147,6 +145,7 @@ function MyProfile() {
       const response = await axios.get(`${apihost}/logout`);
       console.log(response.data);
       await navigation.navigate("Login");
+      await AsyncStorage.clear();
     } catch (error) {
       console.log("Error", error);
     }

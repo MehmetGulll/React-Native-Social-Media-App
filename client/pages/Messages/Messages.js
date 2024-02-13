@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext,useCallback } from "react";
 import {
   View,
   Text,
@@ -6,56 +6,99 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { GlobalContext } from "../../Context/GlobalStates";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation,useFocusEffect } from "@react-navigation/native";
 import Input from "../../components/Input";
 import { apihost } from "../../API/url";
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage"; 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function Messages() {
   const [following, setFollowing] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [messageSendUsers, setMessageSendUsers] = useState([]);
   const { currentUserId } = useContext(GlobalContext);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const getFollowing = async () => {
-      if (!hasMore) {
-        return;
-      }
-      setLoading(true);
-      try {
-        const response = await axios.post(`${apihost}/getFollowing`, {
-          userId: currentUserId,
-          page: page,
-        });
-        setFollowing((oldFollowing) => [
-          ...oldFollowing,
-          ...response.data.following,
-        ]);
-        setHasMore(response.data.hasMore);
-        setPage(page + 1);
-        setLoading(false);
-        console.log(response.data.following);
-      } catch (error) {
-        console.log("Error", error);
-      }
-    };
-    const loadMessageSendUsers = async () => {
-      const storedUsers = await AsyncStorage.getItem("messageSendUsers");
-      if (storedUsers) {
-        setMessageSendUsers(JSON.parse(storedUsers));
-      }
-    };
-    loadMessageSendUsers();
-    getFollowing();
-  }, []);
+  // useEffect(() => {
+  //   const getFollowing = async () => {
+  //     if (!hasMore) {
+  //       return;
+  //     }
+  //     setLoading(true);
+  //     try {
+  //       const response = await axios.post(`${apihost}/getFollowing`, {
+  //         userId: currentUserId,
+  //         page: page,
+  //       });
+  //       setFollowing((oldFollowing) => [
+  //         ...oldFollowing,
+  //         ...response.data.following,
+  //       ]);
+  //       setHasMore(response.data.hasMore);
+  //       setPage(page + 1);
+  //       setLoading(false);
+  //     } catch (error) {
+  //       console.log("Error", error);
+  //     }
+  //   };
+  //   const loadMessageSendUsers = async () => {
+  //     const storedUsers = await AsyncStorage.getItem("messageSendUsers");
+  //     if (storedUsers) {
+  //       setMessageSendUsers(JSON.parse(storedUsers));
+  //     }
+  //     setLoadingUsers(false);
+  //   };
+  //   loadMessageSendUsers();
+  //   getFollowing();
+  // }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      const getFollowing = async () => {
+        if (!hasMore) {
+          return;
+        }
+        setLoading(true);
+        try {
+          const response = await axios.post(`${apihost}/getFollowing`, {
+            userId: currentUserId,
+            page: page,
+          });
+          // following durumunu sıfırla
+          setFollowing([]);
+          setFollowing((oldFollowing) => [
+            ...oldFollowing,
+            ...response.data.following,
+          ]);
+          setHasMore(response.data.hasMore);
+          setPage(page + 1);
+          setLoading(false);
+        } catch (error) {
+          console.log("Error", error);
+        }
+      };
+      const loadMessageSendUsers = async () => {
+        const storedUsers = await AsyncStorage.getItem("messageSendUsers");
+        if (storedUsers) {
+          setMessageSendUsers(JSON.parse(storedUsers));
+        }
+        setLoadingUsers(false);
+      };
+      loadMessageSendUsers();
+      getFollowing();
+    }, [])
+  );
+  
+
+  if (loadingUsers) {
+    return <ActivityIndicator />;
+  }
 
   const handleSendMessage = (userId, firstname, lastname) => {
     navigation.navigate("TextMessage", {
@@ -63,14 +106,15 @@ function Messages() {
       firstname: firstname,
       lastname: lastname,
     });
-
+  
     const newUser = { userId, firstname, lastname };
     setMessageSendUsers((prevUsers) => {
       const updatedUsers = [...prevUsers, newUser];
-      AsyncStorage.setItem("messageSentUsers", JSON.stringify(updatedUsers));
+      AsyncStorage.setItem("messageSendUsers", JSON.stringify(updatedUsers));
       return updatedUsers;
     });
   };
+  
 
   return (
     <LinearGradient
@@ -107,7 +151,7 @@ function Messages() {
           <FlatList
             horizontal
             data={following}
-            keyExtractor={(item) => item._id}
+            keyExtractor={(item,index) => index.toString()}
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() =>
@@ -132,9 +176,16 @@ function Messages() {
             showsHorizontalScrollIndicator={false}
           />
         </View>
-        <View style = {{backgroundColor:'red', alignSelf:'flex-end', marginTop:10}}>
-          <Text>RequestMessage</Text>
-        </View>
+        <TouchableOpacity
+          style={{
+            alignSelf: "flex-end",
+            marginTop: 10,
+            marginRight:10
+          }}
+          onPress={()=>navigation.navigate("RequestMessages")}
+        >
+          <Text>Request Message</Text>
+        </TouchableOpacity>
         <View>
           {messageSendUsers.map((user, index) => (
             <TouchableOpacity

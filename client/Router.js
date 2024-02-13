@@ -18,6 +18,7 @@ import React, { useContext } from "react";
 import { apihost } from "./API/url";
 import UserProfile from "./pages/UserProfile/UserProfile";
 import TextMessage from "./pages/TextMessage/TextMessage";
+import RequestMessage from "./pages/RequestMessages/RequestMessages";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -156,10 +157,10 @@ function BottomTabNavigator() {
         name="Notifications"
         component={Notifications}
         listeners={{
-          tabPress:(e)=>{
+          tabPress: (e) => {
             e.preventDefault();
             setNotificationsModal(!notificationsModal);
-          }
+          },
         }}
         options={{
           tabBarIcon: () => (
@@ -195,7 +196,8 @@ function Router() {
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="SignUp" component={SignUp} />
             <Stack.Screen name="Home" component={BottomTabNavigator} />
-            <Stack.Screen name ="TextMessage" component={TextMessage} />
+            <Stack.Screen name="TextMessage" component={TextMessage} />
+            <Stack.Screen name="RequestMessages" component={RequestMessage} />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaView>

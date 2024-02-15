@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext,useCallback } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { GlobalContext } from "../../Context/GlobalStates";
-import { useNavigation,useFocusEffect } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import Input from "../../components/Input";
 import { apihost } from "../../API/url";
 import axios from "axios";
@@ -25,39 +25,6 @@ function Messages() {
   const [messageSendUsers, setMessageSendUsers] = useState([]);
   const { currentUserId } = useContext(GlobalContext);
   const navigation = useNavigation();
-
-  // useEffect(() => {
-  //   const getFollowing = async () => {
-  //     if (!hasMore) {
-  //       return;
-  //     }
-  //     setLoading(true);
-  //     try {
-  //       const response = await axios.post(`${apihost}/getFollowing`, {
-  //         userId: currentUserId,
-  //         page: page,
-  //       });
-  //       setFollowing((oldFollowing) => [
-  //         ...oldFollowing,
-  //         ...response.data.following,
-  //       ]);
-  //       setHasMore(response.data.hasMore);
-  //       setPage(page + 1);
-  //       setLoading(false);
-  //     } catch (error) {
-  //       console.log("Error", error);
-  //     }
-  //   };
-  //   const loadMessageSendUsers = async () => {
-  //     const storedUsers = await AsyncStorage.getItem("messageSendUsers");
-  //     if (storedUsers) {
-  //       setMessageSendUsers(JSON.parse(storedUsers));
-  //     }
-  //     setLoadingUsers(false);
-  //   };
-  //   loadMessageSendUsers();
-  //   getFollowing();
-  // }, []);
   useFocusEffect(
     React.useCallback(() => {
       const getFollowing = async () => {
@@ -70,7 +37,6 @@ function Messages() {
             userId: currentUserId,
             page: page,
           });
-          // following durumunu sıfırla
           setFollowing([]);
           setFollowing((oldFollowing) => [
             ...oldFollowing,
@@ -84,37 +50,42 @@ function Messages() {
         }
       };
       const loadMessageSendUsers = async () => {
-        const storedUsers = await AsyncStorage.getItem("messageSendUsers");
-        if (storedUsers) {
-          setMessageSendUsers(JSON.parse(storedUsers));
+        try {
+          const response = await axios.get(`${apihost}/getRecentChat`, {
+            params: { userId: currentUserId },
+          });
+          setMessageSendUsers(response.data);
+        } catch (error) {
+          console.log("Bu error Error", error);
         }
-        setLoadingUsers(false);
       };
       loadMessageSendUsers();
       getFollowing();
     }, [])
   );
-  
 
-  if (loadingUsers) {
-    return <ActivityIndicator />;
-  }
-
-  const handleSendMessage = (userId, firstname, lastname) => {
+  const handleSendMessage = async (userId, firstname, lastname) => {
     navigation.navigate("TextMessage", {
       userId: userId,
       firstname: firstname,
       lastname: lastname,
     });
-  
+
     const newUser = { userId, firstname, lastname };
-    setMessageSendUsers((prevUsers) => {
-      const updatedUsers = [...prevUsers, newUser];
-      AsyncStorage.setItem("messageSendUsers", JSON.stringify(updatedUsers));
-      return updatedUsers;
-    });
+    const updatedUsers = [...messageSendUsers, newUser];
+
+    setMessageSendUsers(updatedUsers);
+
+    try {
+      const response = await axios.post(`${apihost}/storeRecentChat`, {
+        userId: currentUserId,
+        recentChats: updatedUsers,
+      });
+      console.log("Burası çalıştı mı bakalım", response.data);
+    } catch (error) {
+      console.log("Error", error);
+    }
   };
-  
 
   return (
     <LinearGradient
@@ -151,7 +122,7 @@ function Messages() {
           <FlatList
             horizontal
             data={following}
-            keyExtractor={(item,index) => index.toString()}
+            keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() =>
@@ -180,9 +151,9 @@ function Messages() {
           style={{
             alignSelf: "flex-end",
             marginTop: 10,
-            marginRight:10
+            marginRight: 10,
           }}
-          onPress={()=>navigation.navigate("RequestMessages")}
+          onPress={() => navigation.navigate("RequestMessages")}
         >
           <Text>Request Message</Text>
         </TouchableOpacity>

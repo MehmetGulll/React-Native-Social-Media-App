@@ -18,7 +18,7 @@ function TextMessage({ route }) {
     console.log(userId);
     const fetchMessages = async () => {
       const response = await axios.get(`${apihost}/getMessages`, {
-        params: { userId },
+        params: { userId: currentUserId, otherUserId: userId },
       });
       setMessages(response.data);
       console.log(response.data);
@@ -30,7 +30,7 @@ function TextMessage({ route }) {
     const response = await axios.post(`${apihost}/sendMessage`, {
       sender: currentUserId,
       receiver: userId,
-      content: message,
+      text: message,
     });
     setMessage("");
     setMessages([...messages, response.data]);
@@ -66,12 +66,12 @@ function TextMessage({ route }) {
                     item.sender === currentUserId ? "flex-end" : "flex-start",
                   backgroundColor:
                     item.sender === currentUserId ? "#635A8F" : "#635A8F",
-                    padding:20,
-                    marginVertical:15,
-                    borderRadius:25,
+                  padding: 20,
+                  marginVertical: 15,
+                  borderRadius: 25,
                 }}
               >
-                <Text style={styles.messageText}>{item.content}</Text>
+                <Text style={styles.messageText}>{item.text}</Text>
               </View>
             )}
           />
@@ -133,9 +133,9 @@ const styles = StyleSheet.create({
   },
   messageText: {
     color: "#FFF",
-    fontSize:18,
-    maxWidth:'80%',
-    flexWrap:'wrap'
+    fontSize: 18,
+    maxWidth: "80%",
+    flexWrap: "wrap",
   },
 });
 export default TextMessage;

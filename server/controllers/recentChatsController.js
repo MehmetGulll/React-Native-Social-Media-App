@@ -1,17 +1,44 @@
 const RecentChat = require("../models/RecentChat");
-
 exports.storeRecentChat = async (req, res) => {
   const { userId, recentChats } = req.body;
-
-  let recentChat = await RecentChat.findOne({ userId });
-  if (recentChat) {
-    recentChat.recentChats = recentChats;
+  let senderChat = await RecentChat.findOne({ userId });
+  if (senderChat) {
+    senderChat.recentChats = recentChats;
   } else {
-    recentChat = new RecentChat({ userId, recentChats });
+    senderChat = new RecentChat({ userId, recentChats });
   }
+  await senderChat.save();
 
-  await recentChat.save();
-  res.send(recentChat);
+  recentChats.forEach(async (chat) => {
+    let receiverChat = await RecentChat.findOne({ userId: chat.userId });
+    if (receiverChat) {
+      const existingUserIndex = receiverChat.recentChats.findIndex(
+        (user) => user.userId === userId
+      );
+      if (existingUserIndex !== -1) {
+        receiverChat.recentChats[existingUserIndex] = {
+          userId,
+          firstname: chat.firstname,
+          lastname: chat.lastname,
+        };
+      } else {
+        receiverChat.recentChats = [
+          ...receiverChat.recentChats,
+          { userId, firstname: chat.firstname, lastname: chat.lastname },
+        ];
+      }
+    } else {
+      receiverChat = new RecentChat({
+        userId: chat.userId,
+        recentChats: [
+          { userId, firstname: chat.firstname, lastname: chat.lastname },
+        ],
+      });
+    }
+    await receiverChat.save();
+  });
+
+  res.send(senderChat);
 };
 
 exports.getRecentChat = async (req, res) => {

@@ -72,9 +72,15 @@ function Messages() {
     });
 
     const newUser = { userId, firstname, lastname };
-    const updatedUsers = [...messageSendUsers, newUser];
+    let updatedUsers = [...messageSendUsers];
 
-    setMessageSendUsers(updatedUsers);
+    const userExists = updatedUsers.some((user) => user.userId === userId);
+
+    if (!userExists) {
+      updatedUsers.push(newUser);
+      setMessageSendUsers(updatedUsers);
+      AsyncStorage.setItem("messageSendUsers", JSON.stringify(updatedUsers));
+    }
 
     try {
       const response = await axios.post(`${apihost}/storeRecentChat`, {

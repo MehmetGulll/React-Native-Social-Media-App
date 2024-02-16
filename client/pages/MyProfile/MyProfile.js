@@ -19,10 +19,12 @@ import {
 import Button from "../../components/Button";
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { LinearGradient } from "expo-linear-gradient";
 import { GlobalContext } from "../../Context/GlobalStates";
+import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { apihost } from "../../API/url";
@@ -140,6 +142,20 @@ function MyProfile() {
     }
   };
 
+  const selectedPhotoTapped = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Hata", "Üzgünüm Galeriye Erişim İznim Bulunmuyor.");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+  };
+
   const logOut = async () => {
     try {
       const response = await axios.get(`${apihost}/logout`);
@@ -167,10 +183,18 @@ function MyProfile() {
               borderTopRightRadius: 12,
             }}
           />
-          <Image
-            source={require("../../assets/profileimage.png")}
+          <TouchableOpacity
+            onPress={selectedPhotoTapped}
             style={{ position: "absolute", top: 170, left: 150 }}
-          />
+          >
+            <Image source={require("../../assets/profileimage.png")} />
+            <FontAwesome
+              name="edit"
+              size={15}
+              style={{ position: "absolute", top: 55, left: 60 }}
+              color={"#FFF"}
+            />
+          </TouchableOpacity>
         </View>
         <View style={styles.userNameContainer}>
           <Text style={styles.username}>{username}</Text>

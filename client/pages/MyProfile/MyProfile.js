@@ -40,6 +40,7 @@ function MyProfile() {
   const [isOpenBottomSheet2, setIsOpenBottomSheet2] = useState(0);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+  const [profileImage, setProfileImage] = useState(null);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["%25", "50%"], []);
   const handlePresentModalPress = useCallback((postId) => {
@@ -154,6 +155,21 @@ function MyProfile() {
       aspect: [4, 3],
       quality: 1,
     });
+    if (!result.canceled) {
+      let localUri = result.assets[0].uri;
+      let fileName = localUri.split("/").pop();
+      let match = /\.(\w+)$/.exec(fileName);
+      let type = match ? `image/${match[1]}` : `image`;
+      let formData = new FormData();
+      formData.append("photo", { uri: localUri, name: fileName, type });
+      formData.append("userId", currentUserId);
+      await axios.post(`${apihost}/uploadProfileImage`, formData, {
+        headers: {
+          "content-type": "multipart/form-data",
+        },
+      });
+      setProfileImage(localUri);
+    }
   };
 
   const logOut = async () => {
@@ -187,7 +203,14 @@ function MyProfile() {
             onPress={selectedPhotoTapped}
             style={{ position: "absolute", top: 170, left: 150 }}
           >
-            <Image source={require("../../assets/profileimage.png")} />
+            <Image
+              source={
+                profileImage
+                  ? { uri: profileImage }
+                  : require("../../assets/profileimage.png")
+              }
+              style = {{width:75, height:75, borderRadius:75}}
+            />
             <FontAwesome
               name="edit"
               size={15}

@@ -1,9 +1,17 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const userController = require('../controllers/userController');
+const userController = require("../controllers/userController");
+const multer = require("multer");
 
-router.post('/signup', userController.signup);
-router.post('/login',userController.login);
-router.get('/checkEmail',userController.checkEmail);
-router.get('/logout',userController.logout);
+const upload = multer({ dest: "public/" });
+
+router.post("/signup", userController.signup);
+router.post("/login", userController.login);
+router.get("/checkEmail", userController.checkEmail);
+router.get("/logout", userController.logout);
+router.post(
+  "/uploadProfileImage",
+  upload.single("photo"),
+  userController.uploadProfileImage
+);
 module.exports = router;

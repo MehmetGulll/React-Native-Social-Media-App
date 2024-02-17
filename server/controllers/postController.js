@@ -1,7 +1,5 @@
-const express = require("express");
 const multer = require("multer");
 const Post = require("../models/Post");
-const User = require("../models/User");
 const fs = require("fs");
 const Follow = require("../models/Follow");
 

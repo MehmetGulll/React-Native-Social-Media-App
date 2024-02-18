@@ -98,6 +98,18 @@ exports.uploadProfileImage = async (req, res) => {
   }
 };
 
+exports.getProfileImage = async(req,res)=>{
+  try {
+    const user = await User.findById(req.query.userId);
+    if(!user){
+      return res.status(404).json({error:'User is not found'});
+    }
+    res.json({profileImage: user.profileImage});
+  } catch (error) {
+    console.log("Error",error);
+  }
+}
+
 exports.logout = async (req, res) => {
   try {
     res.header("auth-token", "").json({ message: "Log out successfly" });

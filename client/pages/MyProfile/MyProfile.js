@@ -41,6 +41,7 @@ function MyProfile() {
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [profileImage, setProfileImage] = useState(null);
+  const [isProfileImageLoaded, setIsProfileImageLoaded] = useState(false);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["%25", "50%"], []);
   const handlePresentModalPress = useCallback((postId) => {
@@ -124,9 +125,22 @@ function MyProfile() {
         console.log("Error", error);
       }
     };
+
+    const fetchProfileImage = async () => {
+      const response = await axios.get(`${apihost}/getProfileImage`, {
+        params: {
+          userId: currentUserId,
+        },
+      });
+      if (response.data.profileImage) {
+        setProfileImage(response.data.profileImage);
+        setIsProfileImageLoaded(true);
+      }
+    };
     fetchPosts();
     getFollowerCount();
     getFollowingCount();
+    fetchProfileImage();
   }, [username, post]);
 
   const deletePost = async () => {
@@ -205,11 +219,11 @@ function MyProfile() {
           >
             <Image
               source={
-                profileImage
-                  ? { uri: profileImage }
+                isProfileImageLoaded
+                  ? { uri: `data:image/gif;base64,${profileImage}` }
                   : require("../../assets/profileimage.png")
               }
-              style = {{width:75, height:75, borderRadius:75}}
+              style={{ width: 75, height: 75, borderRadius: 75 }}
             />
             <FontAwesome
               name="edit"

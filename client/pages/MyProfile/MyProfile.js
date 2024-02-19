@@ -41,7 +41,9 @@ function MyProfile() {
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [profileImage, setProfileImage] = useState(null);
+  const [coverImage, setCoverImage] = useState(null);
   const [isProfileImageLoaded, setIsProfileImageLoaded] = useState(false);
+  const [isCoverImageLoaded, setIsCoverImageLoaded] = useState(false);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["%25", "50%"], []);
   const handlePresentModalPress = useCallback((postId) => {
@@ -137,10 +139,22 @@ function MyProfile() {
         setIsProfileImageLoaded(true);
       }
     };
+    const fetchCoverImage = async () => {
+      const response = await axios.get(`${apihost}/getCoverImage`, {
+        params: {
+          userId: currentUserId,
+        },
+      });
+      if (response.data.coverImage) {
+        setCoverImage(response.data.coverImage);
+        setIsCoverImageLoaded(true);
+      }
+    };
     fetchPosts();
     getFollowerCount();
     getFollowingCount();
     fetchProfileImage();
+    fetchCoverImage();
   }, [username, post]);
 
   const deletePost = async () => {
@@ -185,6 +199,39 @@ function MyProfile() {
       setProfileImage(localUri);
     }
   };
+  const selectedCoverPhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Hata", "Üzgünüm Galeriye Erişim İznim Bulunmuyor.");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (!result.canceled) {
+      let localUri = result.assets[0].uri;
+      let fileName = localUri.split("/").pop();
+      let match = /\.(\w+)$/.exec(fileName);
+      let type = match ? `image/${match[1]}` : `image`;
+      let formData = new FormData();
+      formData.append("photo", { uri: localUri, name: fileName, type });
+      formData.append("userId", currentUserId);
+      await axios.post(`${apihost}/uploadCoverImage`,formData, {
+        headers: {
+          "content-type": "multipart/form-data",
+        },
+      });
+      setCoverImage(localUri);
+    }
+    } catch (error) {
+      console.log("Error",error);
+    }
+    
+  };
 
   const logOut = async () => {
     try {
@@ -204,15 +251,27 @@ function MyProfile() {
         style={{ flex: 1 }}
       >
         <View>
-          <ImageBackground
-            source={require("../../assets/profilebackground.png")}
-            style={{
-              padding: 100,
-              overflow: "hidden",
-              borderTopLeftRadius: 12,
-              borderTopRightRadius: 12,
-            }}
-          />
+          <TouchableOpacity onPress={selectedCoverPhoto}>
+            <ImageBackground
+              source={
+                isCoverImageLoaded
+                  ? { uri: `data:image/gif;base64,${coverImage}` }
+                  : require("../../assets/profilebackground.png")
+              }
+              style={{
+                padding: 100,
+                overflow: "hidden",
+                borderTopLeftRadius: 12,
+                borderTopRightRadius: 12,
+              }}
+            />
+            <FontAwesome
+              name="edit"
+              size={24}
+              style={{ position: "absolute", top: 8, left: 350 }}
+              color={"#FFF"}
+            />
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={selectedPhotoTapped}
             style={{ position: "absolute", top: 170, left: 150 }}

@@ -88,7 +88,7 @@ exports.uploadProfileImage = async (req, res) => {
     const base64Image = buffer.toString("base64");
     const user = await User.findById(req.body.userId);
     if (!user) {
-      return res.status(404).json({ error: "Kullanıcı bulunamadı" });
+      return res.status(404).json({ error: "User is not found" });
     }
     user.profileImage = base64Image;
     await user.save();
@@ -105,6 +105,33 @@ exports.getProfileImage = async(req,res)=>{
       return res.status(404).json({error:'User is not found'});
     }
     res.json({profileImage: user.profileImage});
+  } catch (error) {
+    console.log("Error",error);
+  }
+}
+
+exports.uploadCoverImage = async(req,res)=>{
+  try {
+    const buffer = fs.readFileSync(req.file.path);
+    const base64Image = buffer.toString("base64");
+    const user = await User.findById(req.body.userId);
+    if(!user){
+      return res.status(404).json({error:'User is not found'});
+    }
+    user.coverImage = base64Image;
+    await user.save();
+    res.json(user);
+  } catch (error) {
+    console.log("Error",error);
+  }
+}
+exports.getCoverImage = async(req,res)=>{
+  try {
+    const user = await User.findById(req.query.userId);
+    if(!user){
+      return res.status(404).json({error:'User is not found'});
+    }
+    res.json({coverImage: user.coverImage});
   } catch (error) {
     console.log("Error",error);
   }

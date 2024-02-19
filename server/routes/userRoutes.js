@@ -14,5 +14,12 @@ router.post(
   upload.single("photo"),
   userController.uploadProfileImage
 );
-router.get("/getProfileImage",userController.getProfileImage);
+router.get("/getProfileImage", userController.getProfileImage);
+router.post(
+  "/uploadCoverImage",
+  upload.single("photo"),
+  userController.uploadCoverImage
+);
+
+router.get("/getCoverImage", userController.getCoverImage);
 module.exports = router;

@@ -17,6 +17,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { GlobalContext } from "../../Context/GlobalStates";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 import BottomSheet from "@gorhom/bottom-sheet";
 import Button from "../../components/Button";
 import axios from "axios";
@@ -33,6 +34,10 @@ function UserProfile({ route }) {
   const [followingCount, setFollowingCount] = useState(0);
   const [comments, setComments] = useState([]);
   const [isOpenBottomSheet, setIsOpenBottomSheet] = useState(0);
+  const [profileImage, setProfileImage] = useState(null);
+  const [coverImage, setCoverImage] = useState(null);
+  const [isProfileImageLoaded, setIsProfileImageLoaded] = useState(false);
+  const [isCoverImageLoaded, setIsCoverImageLoaded] = useState(false);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["%25", "50%"], []);
   const handlePresentModalPress = useCallback((postId) => {
@@ -66,7 +71,20 @@ function UserProfile({ route }) {
         console.log("Error", error);
       }
     };
+    const fetchUserImages = async () => {
+      try {
+        const response = await axios.get(`${apihost}/getUserImages/${userId}`);
+        console.log(response.data);
+        setProfileImage(response.data.profileImage);
+        setCoverImage(response.data.coverImage);
+        setIsProfileImageLoaded(true);
+        setIsCoverImageLoaded(true);
+      } catch (error) {
+        console.log("Error", error);
+      }
+    };
     checkFollow();
+    fetchUserImages();
   }, [currentUserId, userId]);
 
   const handleFollow = async () => {
@@ -138,19 +156,43 @@ function UserProfile({ route }) {
         style={{ flex: 1 }}
       >
         <View>
-          <ImageBackground
-            source={require("../../assets/profilebackground.png")}
-            style={{
-              padding: 100,
-              overflow: "hidden",
-              borderTopLeftRadius: 12,
-              borderTopRightRadius: 12,
-            }}
-          />
-          <Image
-            source={require("../../assets/profileimage.png")}
-            style={{ position: "absolute", top: 170, left: 150 }}
-          />
+          <View>
+            <ImageBackground
+              source={
+                isCoverImageLoaded
+                  ? { uri: `data:image/gif;base64,${coverImage}` }
+                  : require("../../assets/profilebackground.png")
+              }
+              style={{
+                padding: 100,
+                overflow: "hidden",
+                borderTopLeftRadius: 12,
+                borderTopRightRadius: 12,
+              }}
+            />
+            <FontAwesome
+              name="edit"
+              size={24}
+              style={{ position: "absolute", top: 8, left: 350 }}
+              color={"#FFF"}
+            />
+          </View>
+          <View style={{ position: "absolute", top: 170, left: 150 }}>
+            <Image
+              source={
+                isProfileImageLoaded
+                  ? { uri: `data:image/gif;base64,${profileImage}` }
+                  : require("../../assets/profileimage.png")
+              }
+              style={{ width: 75, height: 75, borderRadius: 75 }}
+            />
+            <FontAwesome
+              name="edit"
+              size={15}
+              style={{ position: "absolute", top: 55, left: 60 }}
+              color={"#FFF"}
+            />
+          </View>
         </View>
         <View style={styles.userNameContainer}>
           <Text style={styles.username}>{username}</Text>
@@ -230,7 +272,6 @@ function UserProfile({ route }) {
                 }}
               >
                 <View style={{ marginTop: 14, marginHorizontal: 10 }}>
-                  
                   <Text
                     style={{
                       fontSize: 12,
@@ -310,7 +351,7 @@ function UserProfile({ route }) {
             );
           }}
         />
-        
+
         <BottomSheet
           ref={bottomSheetRef}
           index={isOpenBottomSheet}

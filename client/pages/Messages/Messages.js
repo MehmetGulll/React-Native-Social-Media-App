@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { GlobalContext } from "../../Context/GlobalStates";
@@ -23,6 +23,8 @@ function Messages() {
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [messageSendUsers, setMessageSendUsers] = useState([]);
+  const [isProfileImageLoaded, setIsProfileImageLoaded] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
   const { currentUserId } = useContext(GlobalContext);
   const navigation = useNavigation();
   useFocusEffect(
@@ -42,6 +44,7 @@ function Messages() {
             ...oldFollowing,
             ...response.data.following,
           ]);
+
           setHasMore(response.data.hasMore);
           setPage(page + 1);
           setLoading(false);
@@ -54,6 +57,7 @@ function Messages() {
           const response = await axios.get(`${apihost}/getRecentChat`, {
             params: { userId: currentUserId },
           });
+          console.log("Burası olsun", response.data.userId.profileImage);
           setMessageSendUsers(response.data);
         } catch (error) {
           console.log("Bu error Error", error);
@@ -87,7 +91,6 @@ function Messages() {
         userId: currentUserId,
         recentChats: updatedUsers,
       });
-      console.log("Burası çalıştı mı bakalım", response.data);
     } catch (error) {
       console.log("Error", error);
     }
@@ -98,7 +101,7 @@ function Messages() {
       colors={["#3B21B5", "#8F62D7", "#C69BE7"]}
       style={{ flex: 1 }}
     >
-      <View>
+      <ScrollView>
         <View
           style={{
             flexDirection: "row",
@@ -141,9 +144,16 @@ function Messages() {
                 style={styles.followingUsers}
               >
                 <Image
-                  source={require("../../assets/profileimage.png")}
-                  width={50}
-                  height={50}
+                  source={
+                    item.followee.profileImage
+                      ? {
+                          uri: `data:image/gif;base64,${item.followee.profileImage}`,
+                        }
+                      : require("../../assets/profileimage.png")
+                  }
+                  width={75}
+                  height={75}
+                  borderRadius={75}
                 />
                 <Text style={styles.followingUserName}>
                   {item.followee.firstname}
@@ -158,6 +168,9 @@ function Messages() {
             alignSelf: "flex-end",
             marginTop: 10,
             marginRight: 10,
+            borderBottomWidth: 1,
+            borderColor: "#FFF",
+            padding: 5,
           }}
           onPress={() => navigation.navigate("RequestMessages")}
         >
@@ -177,14 +190,35 @@ function Messages() {
               }
             >
               <View>
-                <Text style={styles.lastMessageUser}>
-                  {user.firstname} {user.lastname}
-                </Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    marginLeft: 15,
+                  }}
+                >
+                  <Image
+                    source={
+                      user.userId.profileImage
+                        ? {
+                            uri: `data:image/gif;base64,${user.userId.profileImage}`,
+                          }
+                        : require("../../assets/profileimage.png")
+                    }
+                    width={50}
+                    height={50}
+                    borderRadius={50}
+                  />
+
+                  <Text style={styles.lastMessageUser}>
+                    {user.firstname} {user.lastname}
+                  </Text>
+                </View>
               </View>
             </TouchableOpacity>
           ))}
         </View>
-      </View>
+      </ScrollView>
     </LinearGradient>
   );
 }
@@ -202,8 +236,9 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   lastMessageContainer: {
-    backgroundColor: "#635A8F",
+    borderBottomWidth: 1,
     marginTop: 15,
+    borderColor: "#FFF",
   },
   lastMessageUser: {
     color: "#FFF",

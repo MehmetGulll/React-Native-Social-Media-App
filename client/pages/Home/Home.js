@@ -61,7 +61,7 @@ function Home() {
     setIsOpenBottomSheet(1);
     const fetchComments = async () => {
       try {
-        console.log("Çalıştı");
+      
         const response = await axios.get(`${apihost}/getComments/${postId}`);
         setComments(response.data);
       } catch (error) {
@@ -128,7 +128,7 @@ function Home() {
             currentUserId: currentUserId,
           },
         });
-        console.log(response.data);
+  
         setUsers(response.data);
       } catch (error) {
         console.log("Error", error);
@@ -180,9 +180,7 @@ function Home() {
   };
 
   const handleSendComment = async () => {
-    console.log(selectedItem);
-    console.log(currentUserId);
-    console.log(commentText);
+ 
     try {
       const response = await axios.post(`${apihost}/addComment`, {
         postId: selectedItem,
@@ -193,7 +191,7 @@ function Home() {
         `${apihost}/getComments/${selectedItem}`
       );
       setComments(commentsResponse.data);
-      console.log(response.data);
+   
     } catch (error) {
       console.log("Error", error);
     }

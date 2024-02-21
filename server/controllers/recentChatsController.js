@@ -50,13 +50,30 @@ exports.storeRecentChat = async (req, res) => {
   res.send(senderChat);
 };
 
+// exports.getRecentChat = async (req, res) => {
+//   const { userId } = req.query;
+
+//   const recentChat = await RecentChat.findOne({ userId });
+//   if (!recentChat) {
+//     return res.status(404).send("No recent chats found for this user.");
+//   }
+
+//   res.send(recentChat.recentChats);
+// };
 exports.getRecentChat = async (req, res) => {
   const { userId } = req.query;
 
-  const recentChat = await RecentChat.findOne({ userId });
+  const recentChat = await RecentChat.findOne({ userId })
+    .populate({
+      path: 'recentChats.userId',
+      model: 'User',
+      select: 'profileImage'
+    });
+
   if (!recentChat) {
     return res.status(404).send("No recent chats found for this user.");
   }
 
   res.send(recentChat.recentChats);
 };
+

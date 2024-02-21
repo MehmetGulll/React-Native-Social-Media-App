@@ -170,12 +170,7 @@ function UserProfile({ route }) {
                 borderTopRightRadius: 12,
               }}
             />
-            <FontAwesome
-              name="edit"
-              size={24}
-              style={{ position: "absolute", top: 8, left: 350 }}
-              color={"#FFF"}
-            />
+            
           </View>
           <View style={{ position: "absolute", top: 170, left: 150 }}>
             <Image
@@ -186,12 +181,7 @@ function UserProfile({ route }) {
               }
               style={{ width: 75, height: 75, borderRadius: 75 }}
             />
-            <FontAwesome
-              name="edit"
-              size={15}
-              style={{ position: "absolute", top: 55, left: 60 }}
-              color={"#FFF"}
-            />
+           
           </View>
         </View>
         <View style={styles.userNameContainer}>

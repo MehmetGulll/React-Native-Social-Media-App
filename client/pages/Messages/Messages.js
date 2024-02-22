@@ -53,12 +53,12 @@ function Messages() {
         }
       };
       const loadMessageSendUsers = async () => {
+        setMessageSendUsers([]);
         try {
           const response = await axios.get(`${apihost}/getRecentChat`, {
             params: { userId: currentUserId },
           });
-          console.log("Burası olsun", response.data.userId.profileImage);
-          setMessageSendUsers(response.data);
+          setMessageSendUsers((oldUsers) => [...oldUsers, ...response.data]);
         } catch (error) {
           console.log("Bu error Error", error);
         }

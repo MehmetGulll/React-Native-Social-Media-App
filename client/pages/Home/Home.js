@@ -61,7 +61,6 @@ function Home() {
     setIsOpenBottomSheet(1);
     const fetchComments = async () => {
       try {
-      
         const response = await axios.get(`${apihost}/getComments/${postId}`);
         setComments(response.data);
       } catch (error) {
@@ -128,7 +127,7 @@ function Home() {
             currentUserId: currentUserId,
           },
         });
-  
+
         setUsers(response.data);
       } catch (error) {
         console.log("Error", error);
@@ -180,7 +179,6 @@ function Home() {
   };
 
   const handleSendComment = async () => {
- 
     try {
       const response = await axios.post(`${apihost}/addComment`, {
         postId: selectedItem,
@@ -191,7 +189,6 @@ function Home() {
         `${apihost}/getComments/${selectedItem}`
       );
       setComments(commentsResponse.data);
-   
     } catch (error) {
       console.log("Error", error);
     }
@@ -329,9 +326,19 @@ function Home() {
                   borderColor: "#D3D3D3",
                 }}
               >
-                <Text>
-                  {user.firstname} {user.lastname}
-                </Text>
+                <View style = {{flexDirection:'row',alignItems:'center'}}>
+                  <Image
+                    source={
+                      user.profileImage
+                        ? { uri: `data:image/gif;base64,${user.profileImage}` }
+                        : require("../../assets/profileimage.png")
+                    }
+                    style={{ width: 35, height: 35, borderRadius: 35 }}
+                  />
+                  <Text style = {{marginLeft:10}}>
+                    {user.firstname} {user.lastname}
+                  </Text>
+                </View>
               </TouchableOpacity>
             ))}
           </View>
@@ -500,6 +507,7 @@ function Home() {
           index={isOpenBottomSheet}
           snapPoints={snapPoints}
           onChange={handleSheetChanges}
+          
         >
           <View
             style={{

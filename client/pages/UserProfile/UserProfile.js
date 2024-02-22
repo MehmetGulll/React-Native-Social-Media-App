@@ -72,9 +72,10 @@ function UserProfile({ route }) {
       }
     };
     const fetchUserImages = async () => {
+
       try {
         const response = await axios.get(`${apihost}/getUserImages/${userId}`);
-        console.log(response.data);
+        console.log("user bilgileri",response.data);
         setProfileImage(response.data.profileImage);
         setCoverImage(response.data.coverImage);
         setIsProfileImageLoaded(true);
@@ -159,7 +160,7 @@ function UserProfile({ route }) {
           <View>
             <ImageBackground
               source={
-                isCoverImageLoaded
+                coverImage
                   ? { uri: `data:image/gif;base64,${coverImage}` }
                   : require("../../assets/profilebackground.png")
               }
@@ -175,7 +176,7 @@ function UserProfile({ route }) {
           <View style={{ position: "absolute", top: 170, left: 150 }}>
             <Image
               source={
-                isProfileImageLoaded
+                profileImage
                   ? { uri: `data:image/gif;base64,${profileImage}` }
                   : require("../../assets/profileimage.png")
               }

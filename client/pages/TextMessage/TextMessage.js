@@ -15,13 +15,18 @@ function TextMessage({ route }) {
   const { currentUserId } = useContext(GlobalContext);
   const navigation = useNavigation();
   useEffect(() => {
-    console.log(userId);
     const fetchMessages = async () => {
-      const response = await axios.get(`${apihost}/getMessages`, {
-        params: { userId: currentUserId, otherUserId: userId },
-      });
-      setMessages(response.data);
-      console.log(response.data);
+      try {
+        console.log(currentUserId);
+        console.log(userId);
+        const response = await axios.get(`${apihost}/getMessages`, {
+          params: { userId: currentUserId, otherUserId: userId },
+        });
+        setMessages(response.data);
+     
+      } catch (error) {
+        console.log("Error", error);
+      }
     };
     fetchMessages();
   }, []);

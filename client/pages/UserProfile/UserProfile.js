@@ -348,6 +348,9 @@ function UserProfile({ route }) {
           index={isOpenBottomSheet}
           snapPoints={snapPoints}
           onChange={handleSheetChanges}
+          backgroundComponent={({ style }) => (
+            <View style={[style, { backgroundColor: '#C69BE7', borderRadius:15 }]} /> 
+          )}
         >
           <View
             style={{

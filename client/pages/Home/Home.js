@@ -55,7 +55,7 @@ function Home() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isOpenBottomSheet, setIsOpenBottomSheet] = useState(0);
   const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() => ["%25", "50%"], []);
+  const snapPoints = useMemo(() => ["%25", "75%"], []);
   const handlePresentModalPress = useCallback((postId) => {
     setSelectedItem(postId);
     setIsOpenBottomSheet(1);
@@ -507,7 +507,10 @@ function Home() {
           index={isOpenBottomSheet}
           snapPoints={snapPoints}
           onChange={handleSheetChanges}
-          
+          backgroundComponent={({ style }) => (
+            <View style={[style, { backgroundColor: '#C69BE7', borderRadius:15 }]} /> 
+          )}
+        
         >
           <View
             style={{
@@ -515,6 +518,7 @@ function Home() {
               alignItems: "center",
               padding: 15,
               gap: 20,
+   
             }}
           >
             <TextInput

@@ -74,11 +74,13 @@ function TextMessage({ route }) {
                   padding: 20,
                   marginVertical: 15,
                   borderRadius: 25,
+                  
                 }}
               >
                 <Text style={styles.messageText}>{item.text}</Text>
               </View>
             )}
+            inverted
           />
         </View>
         <View

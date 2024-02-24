@@ -59,7 +59,7 @@ function TextMessage({ route }) {
         </View>
         <View style={{ flex: 1 }}>
           <FlatList
-            data={messages}
+            data={messages.reverse()}
             keyExtractor={(item, index) =>
               item.id ? item.id.toString() : index.toString()
             }

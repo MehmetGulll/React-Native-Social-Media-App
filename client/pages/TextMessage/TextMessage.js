@@ -17,15 +17,14 @@ function TextMessage({ route }) {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        console.log(currentUserId);
         console.log(userId);
+        console.log(currentUserId);
         const response = await axios.get(`${apihost}/getMessages`, {
           params: { userId: currentUserId, otherUserId: userId },
         });
         setMessages(response.data);
-     
       } catch (error) {
-        console.log("Error", error);
+        console.log(" Bu Error", error);
       }
     };
     fetchMessages();

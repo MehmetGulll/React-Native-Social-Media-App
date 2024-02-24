@@ -183,7 +183,7 @@ function Messages() {
               key={index}
               onPress={() =>
                 navigation.navigate("TextMessage", {
-                  userId: user.userId,
+                  userId: user.userId._id,
                   firstname: user.firstname,
                   lastname: user.lastname,
                 })

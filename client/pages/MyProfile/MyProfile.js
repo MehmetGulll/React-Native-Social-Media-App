@@ -45,7 +45,7 @@ function MyProfile() {
   const [isProfileImageLoaded, setIsProfileImageLoaded] = useState(false);
   const [isCoverImageLoaded, setIsCoverImageLoaded] = useState(false);
   const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() => ["%25", "50%"], []);
+  const snapPoints = useMemo(() => ["%25", "75%"], []);
   const handlePresentModalPress = useCallback((postId) => {
     setSelectedItem(postId);
     setIsOpenBottomSheet(1);
@@ -472,6 +472,9 @@ function MyProfile() {
           index={isOpenBottomSheet2}
           snapPoints={snapPoints}
           onChange={handleSheetChanges2}
+          backgroundComponent={({ style }) => (
+            <View style={[style, { backgroundColor: '#C69BE7', borderRadius:15 }]} /> 
+          )}
         >
           <View
             style={{

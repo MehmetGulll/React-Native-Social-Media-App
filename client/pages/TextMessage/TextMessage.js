@@ -1,5 +1,11 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ImageBackground,
+} from "react-native";
 import Input from "../../components/Input";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
@@ -9,8 +15,10 @@ import axios from "axios";
 import { apihost } from "../../API/url";
 
 function TextMessage({ route }) {
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const { userId, firstname, lastname } = route.params;
   const { currentUserId } = useContext(GlobalContext);
   const navigation = useNavigation();
@@ -22,12 +30,13 @@ function TextMessage({ route }) {
         const response = await axios.get(`${apihost}/getMessages`, {
           params: { userId: currentUserId, otherUserId: userId },
         });
-        setMessages(response.data);
+        setMessages(response.data.messages);
       } catch (error) {
         console.log(" Bu Error", error);
       }
     };
     fetchMessages();
+    loadMoreMessages();
   }, []);
   const sendMessage = async () => {
     console.log("Yollamaya çalışıyorum");
@@ -37,8 +46,32 @@ function TextMessage({ route }) {
       text: message,
     });
     setMessage("");
-    setMessages([...messages, response.data]);
+    setMessages((prevMessages) => [...prevMessages, response.data]);
   };
+
+  const loadMoreMessages = async () => {
+    try {
+      const response = await axios.get(`${apihost}/getMessages`, {
+        userId: currentUserId,
+        otherUserId: userId,
+        page: page,
+        limit: 20,
+      });
+      if (response.data.messages.length > 0) {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          ...response.data.messages,
+        ]);
+        setPage((prevPage) => prevPage + 1);
+      } else {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
+
+  const reservedMessages = [...messages].reverse();
 
   return (
     <LinearGradient
@@ -57,9 +90,14 @@ function TextMessage({ route }) {
             {firstname} {lastname}
           </Text>
         </View>
+
         <View style={{ flex: 1 }}>
+          <ImageBackground
+            source={require("../../assets/messageContainerBackground.png")}
+            style={{ width: "100%", height: "100%" }}
+          >
           <FlatList
-            data={messages.reverse()}
+            data={reservedMessages}
             keyExtractor={(item, index) =>
               item.id ? item.id.toString() : index.toString()
             }
@@ -73,14 +111,16 @@ function TextMessage({ route }) {
                   padding: 20,
                   marginVertical: 15,
                   borderRadius: 25,
-                  
                 }}
               >
                 <Text style={styles.messageText}>{item.text}</Text>
               </View>
             )}
             inverted
+            onEndReached={loadMoreMessages}
+            onEndReachedThreshold={0.5}
           />
+          </ImageBackground>
         </View>
         <View
           style={{
@@ -103,7 +143,7 @@ function TextMessage({ route }) {
               color={"#FFF"}
               flex={1}
               onChangeText={(text) => setMessage(text)}
-              value={message}
+              value={Array.isArray(message) ? message.join("") : message}
             />
             <View
               style={{

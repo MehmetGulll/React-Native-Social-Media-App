@@ -78,7 +78,6 @@ exports.getFollowedUsersPosts = async (req, res) => {
     const posts = await Post.find({ userId: { $in: userIds } })
       .skip(skip)
       .limit(limit);
-    console.log(posts);
     const totalPosts = await Post.countDocuments({ userId: { $in: userIds } });
     const hasMore = totalPosts > skip + posts.length;
     res.json({ posts, hasMore, totalPosts });

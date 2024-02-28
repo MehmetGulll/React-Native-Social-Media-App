@@ -22,4 +22,5 @@ router.post(
 );
 
 router.get("/getCoverImage", userController.getCoverImage);
+router.post("/blockedUser", userController.userBlocked);
 module.exports = router;

@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const multer = require("multer");
 
-
 exports.signup = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -64,24 +63,24 @@ exports.checkEmail = async (req, res) => {
 };
 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, "public/");
-    },
-    filename: function (req, file, cb) {
-      let ext = "";
-      switch (file.mimetype) {
-        case "image/jpeg":
-          ext = ".jpg";
-          break;
-        case "image/png":
-          ext = ".png";
-          break;
-      }
-      cb(null, Date.now() + ext);
-    },
-  });
-  
-  const upload = multer({ storage: storage });
+  destination: function (req, file, cb) {
+    cb(null, "public/");
+  },
+  filename: function (req, file, cb) {
+    let ext = "";
+    switch (file.mimetype) {
+      case "image/jpeg":
+        ext = ".jpg";
+        break;
+      case "image/png":
+        ext = ".png";
+        break;
+    }
+    cb(null, Date.now() + ext);
+  },
+});
+
+const upload = multer({ storage: storage });
 exports.uploadProfileImage = async (req, res) => {
   try {
     const buffer = fs.readFileSync(req.file.path);
@@ -98,48 +97,59 @@ exports.uploadProfileImage = async (req, res) => {
   }
 };
 
-exports.getProfileImage = async(req,res)=>{
+exports.getProfileImage = async (req, res) => {
   try {
     const user = await User.findById(req.query.userId);
-    if(!user){
-      return res.status(404).json({error:'User is not found'});
+    if (!user) {
+      return res.status(404).json({ error: "User is not found" });
     }
-    res.json({profileImage: user.profileImage});
+    res.json({ profileImage: user.profileImage });
   } catch (error) {
-    console.log("Error",error);
+    console.log("Error", error);
   }
-}
+};
 
-exports.uploadCoverImage = async(req,res)=>{
+exports.uploadCoverImage = async (req, res) => {
   try {
     const buffer = fs.readFileSync(req.file.path);
     const base64Image = buffer.toString("base64");
     const user = await User.findById(req.body.userId);
-    if(!user){
-      return res.status(404).json({error:'User is not found'});
+    if (!user) {
+      return res.status(404).json({ error: "User is not found" });
     }
     user.coverImage = base64Image;
     await user.save();
     res.json(user);
   } catch (error) {
-    console.log("Error",error);
+    console.log("Error", error);
   }
-}
-exports.getCoverImage = async(req,res)=>{
+};
+exports.getCoverImage = async (req, res) => {
   try {
     const user = await User.findById(req.query.userId);
-    if(!user){
-      return res.status(404).json({error:'User is not found'});
+    if (!user) {
+      return res.status(404).json({ error: "User is not found" });
     }
-    res.json({coverImage: user.coverImage});
+    res.json({ coverImage: user.coverImage });
   } catch (error) {
-    console.log("Error",error);
+    console.log("Error", error);
   }
-}
+};
 
 exports.logout = async (req, res) => {
   try {
     res.header("auth-token", "").json({ message: "Log out successfly" });
+  } catch (error) {
+    console.log("Error", error);
+  }
+};
+exports.userBlocked = async (req, res) => {
+  try {
+    const { currentUserId, userId } = req.body;
+    const user = await User.findById(currentUserId);
+    user.blockedUsers.push(userId);
+    await user.save();
+    res.send({ success: true });
   } catch (error) {
     console.log("Error", error);
   }

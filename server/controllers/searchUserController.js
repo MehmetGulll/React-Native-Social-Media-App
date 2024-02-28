@@ -1,4 +1,3 @@
-const express = require("express");
 const User = require("../models/User");
 
 exports.getUsers = async (req, res) => {
@@ -8,12 +7,16 @@ exports.getUsers = async (req, res) => {
     if (searchTerm.length < 3) {
       return res.json([]);
     }
+    const currentUser = await User.findById(currentUserId);
     const users = await User.find({
       $or: [
         { username: { $regex: searchTerm, $options: "i" } },
         { firstname: { $regex: searchTerm, $options: "i" } },
       ],
-      _id: { $ne: currentUserId },
+      _id: { 
+        $ne: currentUserId, 
+        $nin: currentUser.blockedUsers 
+      },
     });
     res.json(users);
   } catch (error) {

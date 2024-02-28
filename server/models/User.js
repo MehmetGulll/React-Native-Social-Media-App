@@ -27,7 +27,11 @@ const UserSchema = new mongoose.Schema({
   },
   coverImage:{
     type:String
-  }
+  },
+  blockedUsers:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'User'
+  }]
 });
 
 module.exports = mongoose.model("User", UserSchema);

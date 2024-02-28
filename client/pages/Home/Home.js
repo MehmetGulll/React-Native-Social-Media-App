@@ -127,7 +127,6 @@ function Home() {
             currentUserId: currentUserId,
           },
         });
-
         setUsers(response.data);
       } catch (error) {
         console.log("Error", error);
@@ -326,7 +325,7 @@ function Home() {
                   borderColor: "#D3D3D3",
                 }}
               >
-                <View style = {{flexDirection:'row',alignItems:'center'}}>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <Image
                     source={
                       user.profileImage
@@ -335,7 +334,7 @@ function Home() {
                     }
                     style={{ width: 35, height: 35, borderRadius: 35 }}
                   />
-                  <Text style = {{marginLeft:10}}>
+                  <Text style={{ marginLeft: 10 }}>
                     {user.firstname} {user.lastname}
                   </Text>
                 </View>
@@ -508,9 +507,10 @@ function Home() {
           snapPoints={snapPoints}
           onChange={handleSheetChanges}
           backgroundComponent={({ style }) => (
-            <View style={[style, { backgroundColor: '#C69BE7', borderRadius:15 }]} /> 
+            <View
+              style={[style, { backgroundColor: "#C69BE7", borderRadius: 15 }]}
+            />
           )}
-        
         >
           <View
             style={{
@@ -518,7 +518,6 @@ function Home() {
               alignItems: "center",
               padding: 15,
               gap: 20,
-   
             }}
           >
             <TextInput

@@ -33,7 +33,7 @@ import {
 
 function UserProfile({ route }) {
   const { username, userId } = route.params;
-  const { currentUserId } = useContext(GlobalContext);
+  const { currentUserId,messageSendUsers,setMessageSendUsers,blockedUsers,setBlockedUsers,following, setFollowing } = useContext(GlobalContext);
   const [post, setPost] = useState([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -118,15 +118,45 @@ function UserProfile({ route }) {
       console.log("Error", error);
     }
   };
-  const userBlocked = async()=>{
+  const userBlocked = async(userIdToBlock)=>{
     try {
       const response = await axios.post(`${apihost}/blockedUser`,{
-        userId:userId,
+        userId:userIdToBlock,
         currentUserId:currentUserId
       });
       console.log(response.data.success);
       if(response.data.success){
         console.log('User blocked successfully');
+        setBlockedUsers((oldBlockedUsers) => [...oldBlockedUsers, userIdToBlock]);
+        const userIndex = messageSendUsers.findIndex(user => user.userId === userIdToBlock);
+        let updatedUsers = [...messageSendUsers]; 
+        if (userIndex !== -1) {
+          updatedUsers.splice(userIndex, 1);
+          setMessageSendUsers(updatedUsers);
+          AsyncStorage.setItem("messageSendUsers", JSON.stringify(updatedUsers));
+        }
+        try {
+          const response = await axios.post(`${apihost}/storeRecentChat`, {
+            userId: currentUserId,
+            recentChats: updatedUsers,
+          });
+        } catch (error) {
+          console.log("Error", error);
+        }
+        
+         
+          try {
+            setMessageSendUsers([]);
+            const response = await axios.get(`${apihost}/getRecentChat`, {
+              params: { userId: currentUserId },
+            });
+            const nonBlockedUsers = response.data.filter(user => !blockedUsers.includes(user._id));
+            console.log(nonBlockedUsers);
+            setMessageSendUsers((oldUsers) => [...oldUsers, ...nonBlockedUsers]);
+          } catch (error) {
+            console.log("Bu error Error", error);
+          }
+        
       }else{
         console.log("Failed to block user");
       }
@@ -134,6 +164,8 @@ function UserProfile({ route }) {
       console.log("Error",error);
     }
   }
+  
+
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -214,7 +246,7 @@ function UserProfile({ route }) {
                   <Entypo name="dots-three-horizontal" size={24} />
                 </MenuTrigger>
                 <MenuOptions>
-                  <MenuOption onSelect={() => userBlocked()}>
+                  <MenuOption onSelect={() => userBlocked(userId)}>
                     <Text>Block</Text>
                   </MenuOption>
                 </MenuOptions>

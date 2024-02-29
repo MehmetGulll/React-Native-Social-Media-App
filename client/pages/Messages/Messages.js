@@ -17,15 +17,12 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function Messages() {
-  const [following, setFollowing] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [loadingUsers, setLoadingUsers] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [messageSendUsers, setMessageSendUsers] = useState([]);
-  const [isProfileImageLoaded, setIsProfileImageLoaded] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
-  const { currentUserId } = useContext(GlobalContext);
+  const { currentUserId, blockedUsers, following, setFollowing } =
+    useContext(GlobalContext);
   const navigation = useNavigation();
   useFocusEffect(
     React.useCallback(() => {
@@ -42,7 +39,7 @@ function Messages() {
           setFollowing([]);
           setFollowing((oldFollowing) => [
             ...oldFollowing,
-            ...response.data.following,
+            ...(response.data.following || []),
           ]);
 
           setHasMore(response.data.hasMore);
@@ -58,14 +55,18 @@ function Messages() {
           const response = await axios.get(`${apihost}/getRecentChat`, {
             params: { userId: currentUserId },
           });
-          setMessageSendUsers((oldUsers) => [...oldUsers, ...response.data]);
+          const nonBlockedUsers = response.data.filter(
+            (user) => !blockedUsers.includes(user._id)
+          );
+          console.log(nonBlockedUsers);
+          setMessageSendUsers((oldUsers) => [...oldUsers, ...nonBlockedUsers]);
         } catch (error) {
           console.log("Bu error Error", error);
         }
       };
       loadMessageSendUsers();
       getFollowing();
-    }, [])
+    }, [blockedUsers])
   );
 
   const handleSendMessage = async (userId, firstname, lastname) => {

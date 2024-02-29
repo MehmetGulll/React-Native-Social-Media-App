@@ -1,5 +1,6 @@
 const express = require("express");
 const Follow = require("../models/Follow");
+const User = require('../models/User')
 const Notification = require("../models/Notifications");
 
 exports.followUser = async (req, res) => {
@@ -81,19 +82,28 @@ exports.getFollowing = async(req,res)=>{
   const limit = parseInt(req.query.limit) || 20;
   const skip = (page - 1) * limit;
   try {
+    // Engellenen kullanıcıların listesini al
+    const currentUser = await User.findById(req.body.userId);
+    const blockedUsers = currentUser.blockedUsers || []; // Eğer blockedUsers undefined ise, boş bir dizi kullan
+
+    // Engellenen kullanıcıları filtrele
     const following = await Follow.find({
-      follower:req.body.userId
+      follower: req.body.userId,
+      followee: { $nin: blockedUsers } // Engellenen kullanıcıları dahil etme
     })
     .populate("followee")
     .skip(skip)
     .limit(limit);
+
     const totalFollowing = await Follow.countDocuments({
-      follower:req.body.userId
+      follower: req.body.userId,
+      followee: { $nin: blockedUsers } // Engellenen kullanıcıları dahil etme
     });
+
     const hasMore = totalFollowing > skip + following.length;
     res.json({following, hasMore, totalFollowing})
   } catch (error) {
-    console.log("Error");
+    console.log("Error",error);
     res.json({message:error});
   }
 }

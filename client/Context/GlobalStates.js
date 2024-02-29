@@ -6,9 +6,27 @@ export const GlobalProvider = ({ children }) => {
   const [caption, setCaption] = useState("");
   const [currentUserId, setCurrentUserId] = useState();
   const [notificationsModal, setNotificationsModal] = useState(false);
+  const [messageSendUsers, setMessageSendUsers] = useState([]);
+  const [blockedUsers, setBlockedUsers] = useState([])
+  const [following, setFollowing] = useState([]);
   return (
     <GlobalContext.Provider
-      value={{ username, setUsername, caption, setCaption,currentUserId,setCurrentUserId, notificationsModal, setNotificationsModal  }}
+      value={{
+        username,
+        setUsername,
+        caption,
+        setCaption,
+        currentUserId,
+        setCurrentUserId,
+        notificationsModal,
+        setNotificationsModal,
+        messageSendUsers,
+        setMessageSendUsers,
+        blockedUsers,
+        setBlockedUsers,
+        following,
+        setFollowing
+      }}
     >
       {children}
     </GlobalContext.Provider>

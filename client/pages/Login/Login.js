@@ -129,6 +129,8 @@ function Login() {
                 backgroundColor={"#635A8F"}
                 onPress={handleLogin}
                 color={"#FFF"}
+                borderRadius={25}
+                fontSize={22}
                 padding={15}
               />
             </View>

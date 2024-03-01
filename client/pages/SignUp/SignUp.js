@@ -200,6 +200,8 @@ function SignUp() {
               backgroundColor={"#635A8F"}
               color={"#FFF"}
               padding={15}
+              borderRadius={25}
+              fontSize={22}
               onPress={handleSignUp}
             />
           </View>

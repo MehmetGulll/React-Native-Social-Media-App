@@ -33,7 +33,15 @@ import {
 
 function UserProfile({ route }) {
   const { username, userId } = route.params;
-  const { currentUserId,messageSendUsers,setMessageSendUsers,blockedUsers,setBlockedUsers,following, setFollowing } = useContext(GlobalContext);
+  const {
+    currentUserId,
+    messageSendUsers,
+    setMessageSendUsers,
+    blockedUsers,
+    setBlockedUsers,
+    following,
+    setFollowing,
+  } = useContext(GlobalContext);
   const [post, setPost] = useState([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -118,22 +126,30 @@ function UserProfile({ route }) {
       console.log("Error", error);
     }
   };
-  const userBlocked = async(userIdToBlock)=>{
+  const userBlocked = async (userIdToBlock) => {
     try {
-      const response = await axios.post(`${apihost}/blockedUser`,{
-        userId:userIdToBlock,
-        currentUserId:currentUserId
+      const response = await axios.post(`${apihost}/blockedUser`, {
+        userId: userIdToBlock,
+        currentUserId: currentUserId,
       });
       console.log(response.data.success);
-      if(response.data.success){
-        console.log('User blocked successfully');
-        setBlockedUsers((oldBlockedUsers) => [...oldBlockedUsers, userIdToBlock]);
-        const userIndex = messageSendUsers.findIndex(user => user.userId === userIdToBlock);
-        let updatedUsers = [...messageSendUsers]; 
+      if (response.data.success) {
+        console.log("User blocked successfully");
+        setBlockedUsers((oldBlockedUsers) => [
+          ...oldBlockedUsers,
+          userIdToBlock,
+        ]);
+        const userIndex = messageSendUsers.findIndex(
+          (user) => user.userId === userIdToBlock
+        );
+        let updatedUsers = [...messageSendUsers];
         if (userIndex !== -1) {
           updatedUsers.splice(userIndex, 1);
           setMessageSendUsers(updatedUsers);
-          AsyncStorage.setItem("messageSendUsers", JSON.stringify(updatedUsers));
+          AsyncStorage.setItem(
+            "messageSendUsers",
+            JSON.stringify(updatedUsers)
+          );
         }
         try {
           const response = await axios.post(`${apihost}/storeRecentChat`, {
@@ -143,29 +159,27 @@ function UserProfile({ route }) {
         } catch (error) {
           console.log("Error", error);
         }
-        
-         
-          try {
-            setMessageSendUsers([]);
-            const response = await axios.get(`${apihost}/getRecentChat`, {
-              params: { userId: currentUserId },
-            });
-            const nonBlockedUsers = response.data.filter(user => !blockedUsers.includes(user._id));
-            console.log(nonBlockedUsers);
-            setMessageSendUsers((oldUsers) => [...oldUsers, ...nonBlockedUsers]);
-          } catch (error) {
-            console.log("Bu error Error", error);
-          }
-        
-      }else{
+
+        try {
+          setMessageSendUsers([]);
+          const response = await axios.get(`${apihost}/getRecentChat`, {
+            params: { userId: currentUserId },
+          });
+          const nonBlockedUsers = response.data.filter(
+            (user) => !blockedUsers.includes(user._id)
+          );
+          console.log(nonBlockedUsers);
+          setMessageSendUsers((oldUsers) => [...oldUsers, ...nonBlockedUsers]);
+        } catch (error) {
+          console.log("Bu error Error", error);
+        }
+      } else {
         console.log("Failed to block user");
       }
     } catch (error) {
-      console.log("Error",error);
+      console.log("Error", error);
     }
-  }
-  
-
+  };
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -239,20 +253,20 @@ function UserProfile({ route }) {
           <View style={styles.userNameContainer}>
             <Text style={styles.username}>{username}</Text>
           </View>
-         
-            <View style={{ alignItems: "flex-end", marginRight: 15 }}>
-              <Menu>
-                <MenuTrigger>
-                  <Entypo name="dots-three-horizontal" size={24} />
-                </MenuTrigger>
-                <MenuOptions>
-                  <MenuOption onSelect={() => userBlocked(userId)}>
-                    <Text>Block</Text>
-                  </MenuOption>
-                </MenuOptions>
-              </Menu>
-            </View>
-         
+
+          <View style={{ alignItems: "flex-end", marginRight: 15 }}>
+            <Menu>
+              <MenuTrigger>
+                <Entypo name="dots-three-horizontal" size={24} />
+              </MenuTrigger>
+              <MenuOptions>
+                <MenuOption onSelect={() => userBlocked(userId)}>
+                  <Text>Block</Text>
+                </MenuOption>
+              </MenuOptions>
+            </Menu>
+          </View>
+
           <View style={styles.postFollowContainer}>
             <View style={styles.postFollow}>
               <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "600" }}>
@@ -287,6 +301,8 @@ function UserProfile({ route }) {
                   backgroundColor={"#635A8F"}
                   color={"#FFF"}
                   padding={12}
+                  borderRadius={25}
+                  fontSize={22}
                   onPress={handleUnFollow}
                 />
               ) : (
@@ -295,6 +311,8 @@ function UserProfile({ route }) {
                   backgroundColor={"#635A8F"}
                   color={"#FFF"}
                   padding={12}
+                  borderRadius={25}
+                  fontSize={22}
                   onPress={handleFollow}
                 />
               )}
@@ -302,6 +320,8 @@ function UserProfile({ route }) {
             <View style={{ flex: 1 }}>
               <Button
                 text={"Message"}
+                borderRadius={25}
+                fontSize={22}
                 backgroundColor={"#FFF"}
                 color={"#635A8F"}
                 padding={12}

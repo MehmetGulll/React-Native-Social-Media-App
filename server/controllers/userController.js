@@ -154,3 +154,11 @@ exports.userBlocked = async (req, res) => {
     console.log("Error", error);
   }
 };
+exports.getBlockedUsers = async(req,res)=>{
+  try {
+    const user = await User.findById(req.params.userId).populate('blockedUsers');
+    res.json(user.blockedUsers);
+  } catch (error) {
+    console.log("Error",error);
+  }
+}

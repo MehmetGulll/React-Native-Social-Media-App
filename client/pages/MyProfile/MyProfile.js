@@ -15,6 +15,8 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
+  Modal,
+  ScrollView
 } from "react-native";
 import Button from "../../components/Button";
 import { useNavigation } from "@react-navigation/native";
@@ -44,6 +46,9 @@ function MyProfile() {
   const [coverImage, setCoverImage] = useState(null);
   const [isProfileImageLoaded, setIsProfileImageLoaded] = useState(false);
   const [isCoverImageLoaded, setIsCoverImageLoaded] = useState(false);
+  const [visibleSettings, setVisibleSettings] = useState(false);
+  const [visibleBlockedUsers, setVisibleBlockedUsers] = useState(false);
+  const [blockedUsers, setBlockedUsers] = useState([]);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["%25", "75%"], []);
   const handlePresentModalPress = useCallback((postId) => {
@@ -102,6 +107,7 @@ function MyProfile() {
     const fetchPosts = async () => {
       try {
         const response = await axios.get(`${apihost}/getUserPosts/${username}`);
+
         setPost(response.data);
       } catch (error) {
         console.log("Error", error);
@@ -112,6 +118,7 @@ function MyProfile() {
         const response = await axios.post(`${apihost}/getFollowerCount`, {
           userId: currentUserId,
         });
+
         setFollowerCount(response.data.followerCount);
       } catch (error) {
         console.log("Error", error);
@@ -122,6 +129,7 @@ function MyProfile() {
         const response = await axios.post(`${apihost}/getFollowingCount`, {
           userId: currentUserId,
         });
+
         setFollowingCount(response.data.followingCount);
       } catch (error) {
         console.log("Error", error);
@@ -134,6 +142,7 @@ function MyProfile() {
           userId: currentUserId,
         },
       });
+
       if (response.data.profileImage) {
         setProfileImage(response.data.profileImage);
         setIsProfileImageLoaded(true);
@@ -150,11 +159,22 @@ function MyProfile() {
         setIsCoverImageLoaded(true);
       }
     };
+    const fetchBlockedUsers = async () => {
+      try {
+        const response = await axios.get(
+          `${apihost}/getBlockedUsers/${currentUserId}`
+        );
+        setBlockedUsers(response.data);
+      } catch (error) {
+        console.log("Error", error);
+      }
+    };
     fetchPosts();
     getFollowerCount();
     getFollowingCount();
     fetchProfileImage();
     fetchCoverImage();
+    fetchBlockedUsers();
   }, [username, post]);
 
   const deletePost = async () => {
@@ -201,36 +221,36 @@ function MyProfile() {
   };
   const selectedCoverPhoto = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Hata", "Üzgünüm Galeriye Erişim İznim Bulunmuyor.");
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-    if (!result.canceled) {
-      let localUri = result.assets[0].uri;
-      let fileName = localUri.split("/").pop();
-      let match = /\.(\w+)$/.exec(fileName);
-      let type = match ? `image/${match[1]}` : `image`;
-      let formData = new FormData();
-      formData.append("photo", { uri: localUri, name: fileName, type });
-      formData.append("userId", currentUserId);
-      await axios.post(`${apihost}/uploadCoverImage`,formData, {
-        headers: {
-          "content-type": "multipart/form-data",
-        },
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Hata", "Üzgünüm Galeriye Erişim İznim Bulunmuyor.");
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
       });
-      setCoverImage(localUri);
-    }
+      if (!result.canceled) {
+        let localUri = result.assets[0].uri;
+        let fileName = localUri.split("/").pop();
+        let match = /\.(\w+)$/.exec(fileName);
+        let type = match ? `image/${match[1]}` : `image`;
+        let formData = new FormData();
+        formData.append("photo", { uri: localUri, name: fileName, type });
+        formData.append("userId", currentUserId);
+        await axios.post(`${apihost}/uploadCoverImage`, formData, {
+          headers: {
+            "content-type": "multipart/form-data",
+          },
+        });
+        setCoverImage(localUri);
+      }
     } catch (error) {
-      console.log("Error",error);
+      console.log("Error", error);
     }
-    
   };
 
   const logOut = async () => {
@@ -284,6 +304,14 @@ function MyProfile() {
               }
               style={{ width: 75, height: 75, borderRadius: 75 }}
             />
+            <View style={{ position: "absolute", left: 200, top: 40 }}>
+              <Ionicons
+                name="settings-sharp"
+                size={24}
+                color={"#FFF"}
+                onPress={() => setVisibleSettings(!visibleSettings)}
+              />
+            </View>
             <FontAwesome
               name="edit"
               size={15}
@@ -292,6 +320,118 @@ function MyProfile() {
             />
           </TouchableOpacity>
         </View>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={visibleSettings}
+        >
+          <LinearGradient
+            colors={["#3B21B5", "#8F62D7", "#C69BE7"]}
+            style={{ flex: 1 }}
+          >
+            <View style={{ flex: 1, justifyContent: "space-between" }}>
+              <View>
+                <TouchableOpacity
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    padding: 25,
+                    borderBottomWidth: 1,
+                    borderColor: "#FFF",
+                  }}
+                  onPress={() => setVisibleBlockedUsers(!visibleBlockedUsers)}
+                >
+                  <Text style={{ fontSize: 20, color: "#FFF" }}>
+                    Blocked Users
+                  </Text>
+                  <FontAwesome name="angle-right" size={25} color={"#FFF"} />
+                </TouchableOpacity>
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={visibleBlockedUsers}
+                >
+                  <LinearGradient
+                    colors={["#3B21B5", "#8F62D7", "#C69BE7"]}
+                    style={{ flex: 1 }}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <ScrollView>
+                        {blockedUsers.map((user) => (
+                          <View
+                            key={user._id}
+                            style={{
+                              padding: 25,
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              borderBottomWidth: 1,
+                              borderColor: "#FFF",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Text style={{ color: "#FFF", fontSize: 20 }}>
+                              {user.firstname} {user.lastname}
+                            </Text>
+                            <Button
+                              text={"Unblocked"}
+                              backgroundColor={"#635A8F"}
+                              color={"#FFF"}
+                              padding={15}
+                            />
+                          </View>
+                        ))}
+                      </ScrollView>
+                      <View style={{ alignItems: "center", marginBottom: 10 }}>
+                        <TouchableOpacity
+                          onPress={() => setVisibleBlockedUsers(!visibleBlockedUsers)}
+                        >
+                          <Text style={{ color: "#FFF", fontSize: 25 }}>
+                            Close
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </LinearGradient>
+                </Modal>
+                <TouchableOpacity
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    padding: 25,
+                    borderBottomWidth: 1,
+                    borderColor: "#FFF",
+                  }}
+                >
+                  <Text style={{ fontSize: 20, color: "#FFF" }}>
+                    Change Password
+                  </Text>
+                  <FontAwesome name="angle-right" size={25} color={"#FFF"} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    padding: 25,
+                    borderBottomWidth: 1,
+                    borderColor: "#FFF",
+                  }}
+                >
+                  <Text style={{ fontSize: 20, color: "#FFF" }}>
+                    Close Account
+                  </Text>
+                  <FontAwesome name="angle-right" size={25} color={"#FFF"} />
+                </TouchableOpacity>
+              </View>
+              <View style={{ alignItems: "center", marginBottom: 10 }}>
+                <TouchableOpacity
+                  onPress={() => setVisibleSettings(!visibleSettings)}
+                >
+                  <Text style={{ color: "#FFF", fontSize: 25 }}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </LinearGradient>
+        </Modal>
         <View style={styles.userNameContainer}>
           <Text style={styles.username}>{username}</Text>
         </View>
@@ -448,7 +588,9 @@ function MyProfile() {
           snapPoints={snapPoints}
           onChange={handleSheetChanges}
           backgroundComponent={({ style }) => (
-            <View style={[style, { backgroundColor: '#C69BE7', borderRadius:15 }]} /> 
+            <View
+              style={[style, { backgroundColor: "#C69BE7", borderRadius: 15 }]}
+            />
           )}
         >
           <View
@@ -473,7 +615,9 @@ function MyProfile() {
           snapPoints={snapPoints}
           onChange={handleSheetChanges2}
           backgroundComponent={({ style }) => (
-            <View style={[style, { backgroundColor: '#C69BE7', borderRadius:15 }]} /> 
+            <View
+              style={[style, { backgroundColor: "#C69BE7", borderRadius: 15 }]}
+            />
           )}
         >
           <View

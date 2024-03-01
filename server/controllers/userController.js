@@ -154,6 +154,17 @@ exports.userBlocked = async (req, res) => {
     console.log("Error", error);
   }
 };
+exports.userUnBlocked = async(req,res)=>{
+  try {
+    const {currentUserId, userId} = req.body;
+    const user = await User.findById(currentUserId);
+    user.blockedUsers.pull(userId);
+    await user.save();
+    res.send({success:true});
+  } catch (error) {
+    console.log("Error",error);
+  }
+}
 exports.getBlockedUsers = async(req,res)=>{
   try {
     const user = await User.findById(req.params.userId).populate('blockedUsers');

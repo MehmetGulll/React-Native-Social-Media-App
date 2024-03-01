@@ -16,7 +16,7 @@ import {
   TouchableOpacity,
   TextInput,
   Modal,
-  ScrollView
+  ScrollView,
 } from "react-native";
 import Button from "../../components/Button";
 import { useNavigation } from "@react-navigation/native";
@@ -252,6 +252,19 @@ function MyProfile() {
       console.log("Error", error);
     }
   };
+  const unBlockedUser = async (blockedUserId) => {
+    try {
+      const response = await axios.post(`${apihost}/userUnBlocked`, {
+        currentUserId: currentUserId,
+        userId: blockedUserId,
+      });
+      if (response.data.success) {
+        setBlockedUsers(blockedUsers.filter((u) => u._id !== blockedUserId));
+      }
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
 
   const logOut = async () => {
     try {
@@ -377,13 +390,16 @@ function MyProfile() {
                               backgroundColor={"#635A8F"}
                               color={"#FFF"}
                               padding={15}
+                              onPress={() => unBlockedUser(user._id)}
                             />
                           </View>
                         ))}
                       </ScrollView>
                       <View style={{ alignItems: "center", marginBottom: 10 }}>
                         <TouchableOpacity
-                          onPress={() => setVisibleBlockedUsers(!visibleBlockedUsers)}
+                          onPress={() =>
+                            setVisibleBlockedUsers(!visibleBlockedUsers)
+                          }
                         >
                           <Text style={{ color: "#FFF", fontSize: 25 }}>
                             Close

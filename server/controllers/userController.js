@@ -173,3 +173,20 @@ exports.getBlockedUsers = async(req,res)=>{
     console.log("Error",error);
   }
 }
+exports.changePassword = async(req,res)=>{
+  try {
+    const {currentUserId, oldPassword, newPassword} = req.body;
+    const user = await User.findById(currentUserId);
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if(!isMatch){
+      return res.status(400).json({message:'Incorrect current password.'});
+    }
+    const hashedPassword = await bcrypt.hash(newPassword,10);
+    user.password = hashedPassword
+    await user.save();
+    res.json({message:true});
+  } catch (error) {
+    console.log("Error",error);
+    res.status(500).json({message:false,error:error});
+  }
+}

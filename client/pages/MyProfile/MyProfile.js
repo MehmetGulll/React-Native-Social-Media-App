@@ -17,6 +17,7 @@ import {
   TextInput,
   Modal,
   ScrollView,
+  Alert
 } from "react-native";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
@@ -51,6 +52,9 @@ function MyProfile() {
   const [visibleBlockedUsers, setVisibleBlockedUsers] = useState(false);
   const [visibleChangePassword, setVisibleChangePassword] = useState(false);
   const [blockedUsers, setBlockedUsers] = useState([]);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [againNewPassword, setAgainNewPassword] = useState("");
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["%25", "75%"], []);
   const handlePresentModalPress = useCallback((postId) => {
@@ -279,6 +283,28 @@ function MyProfile() {
     }
   };
 
+  const changePassword = async () => {
+    try {
+      const response = await axios.post(`${apihost}/changePassword`, {
+        currentUserId: currentUserId,
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      });
+      if(response.data.message){
+        Alert.alert("Success", "Password changed", [
+          { text: "OK", style: "cancel" },
+        ]);
+      }
+      else{
+        Alert.alert("Fail", "Password didn't change",[
+          {text:"OK", style:'cancel'}
+        ])
+      }
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
+
   return (
     <GestureHandlerRootView style={{ color: "red", flex: 1 }}>
       <LinearGradient
@@ -465,6 +491,7 @@ function MyProfile() {
                               padding={15}
                               borderRadius={25}
                               color={"#FFF"}
+                              onChangeText={(text) => setOldPassword(text)}
                             />
                             <Input
                               placeholder={"New Password"}
@@ -474,6 +501,7 @@ function MyProfile() {
                               padding={15}
                               borderRadius={25}
                               color={"#FFF"}
+                              onChangeText={(text) => setNewPassword(text)}
                             />
                             <Input
                               placeholder={"Again New Password"}
@@ -483,6 +511,7 @@ function MyProfile() {
                               padding={15}
                               borderRadius={25}
                               color={"#FFF"}
+                              onChangeText={(text) => setAgainNewPassword(text)}
                             />
                             <Button
                               text={"Change Password"}
@@ -491,6 +520,7 @@ function MyProfile() {
                               borderRadius={25}
                               fontSize={22}
                               padding={15}
+                              onPress={()=> changePassword()}
                             />
                           </View>
                         </View>

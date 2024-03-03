@@ -19,6 +19,7 @@ import {
   ScrollView,
 } from "react-native";
 import Button from "../../components/Button";
+import Input from "../../components/Input";
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
@@ -48,6 +49,7 @@ function MyProfile() {
   const [isCoverImageLoaded, setIsCoverImageLoaded] = useState(false);
   const [visibleSettings, setVisibleSettings] = useState(false);
   const [visibleBlockedUsers, setVisibleBlockedUsers] = useState(false);
+  const [visibleChangePassword, setVisibleChangePassword] = useState(false);
   const [blockedUsers, setBlockedUsers] = useState([]);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["%25", "75%"], []);
@@ -417,10 +419,97 @@ function MyProfile() {
                     borderBottomWidth: 1,
                     borderColor: "#FFF",
                   }}
+                  onPress={() =>
+                    setVisibleChangePassword(!visibleChangePassword)
+                  }
                 >
                   <Text style={{ fontSize: 20, color: "#FFF" }}>
                     Change Password
                   </Text>
+                  <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={visibleChangePassword}
+                  >
+                    <LinearGradient
+                      colors={["#3B21B5", "#8F62D7", "#C69BE7"]}
+                      style={{ flex: 1 }}
+                    >
+                      <View
+                        style={{ flex: 1, justifyContent: "space-between" }}
+                      >
+                        <View style={{ padding: 39 }}>
+                          <View>
+                            <Text
+                              style={{
+                                color: "#FFF",
+                                fontSize: 24,
+                                fontWeight: "700",
+                              }}
+                            >
+                              Change Password
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              flexDirection: "column",
+                              gap: 10,
+                              marginTop: 15,
+                            }}
+                          >
+                            <Input
+                              placeholder={"Old Password"}
+                              borderWidth={1}
+                              borderColor={"#FFF"}
+                              placeholderTextColor={"#FFF"}
+                              padding={15}
+                              borderRadius={25}
+                              color={"#FFF"}
+                            />
+                            <Input
+                              placeholder={"New Password"}
+                              borderWidth={1}
+                              borderColor={"#FFF"}
+                              placeholderTextColor={"#FFF"}
+                              padding={15}
+                              borderRadius={25}
+                              color={"#FFF"}
+                            />
+                            <Input
+                              placeholder={"Again New Password"}
+                              borderWidth={1}
+                              borderColor={"#FFF"}
+                              placeholderTextColor={"#FFF"}
+                              padding={15}
+                              borderRadius={25}
+                              color={"#FFF"}
+                            />
+                            <Button
+                              text={"Change Password"}
+                              backgroundColor={"#635A8F"}
+                              color={"#FFF"}
+                              borderRadius={25}
+                              fontSize={22}
+                              padding={15}
+                            />
+                          </View>
+                        </View>
+                        <View
+                          style={{ alignItems: "center", marginBottom: 10 }}
+                        >
+                          <TouchableOpacity
+                            onPress={() =>
+                              setVisibleChangePassword(!visibleChangePassword)
+                            }
+                          >
+                            <Text style={{ color: "#FFF", fontSize: 25 }}>
+                              Close
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </LinearGradient>
+                  </Modal>
                   <FontAwesome name="angle-right" size={25} color={"#FFF"} />
                 </TouchableOpacity>
                 <TouchableOpacity

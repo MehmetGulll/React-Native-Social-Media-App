@@ -66,6 +66,27 @@ exports.getPost = async (req, res) => {
   }
 };
 
+// exports.getFollowedUsersPosts = async (req, res) => {
+//   const page = parseInt(req.query.page) || 1;
+//   const limit = parseInt(req.query.limit) || 10;
+//   const skip = (page - 1) * limit;
+
+//   try {
+//     const followedUsers = await Follow.find({ follower: req.body.userId });
+//     const userIds = followedUsers.map((follow) => follow.followee);
+//     console.log(userIds);
+//     const posts = await Post.find({ userId: { $in: userIds } })
+//       .skip(skip)
+//       .limit(limit);
+//     const totalPosts = await Post.countDocuments({ userId: { $in: userIds } });
+//     const hasMore = totalPosts > skip + posts.length;
+//     res.json({ posts, hasMore, totalPosts });
+//   } catch (error) {
+//     console.log("Error", error);
+//     res.status(500).json({ message: error });
+//   }
+// };
+
 exports.getFollowedUsersPosts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
@@ -75,9 +96,11 @@ exports.getFollowedUsersPosts = async (req, res) => {
     const followedUsers = await Follow.find({ follower: req.body.userId });
     const userIds = followedUsers.map((follow) => follow.followee);
     console.log(userIds);
-    const posts = await Post.find({ userId: { $in: userIds } })
-      .skip(skip)
-      .limit(limit);
+    const posts = await Post.aggregate([
+      { $match: { userId: { $in: userIds } } },
+      { $sample: { size: limit } },
+      { $skip: skip },
+    ]);
     const totalPosts = await Post.countDocuments({ userId: { $in: userIds } });
     const hasMore = totalPosts > skip + posts.length;
     res.json({ posts, hasMore, totalPosts });
@@ -86,6 +109,7 @@ exports.getFollowedUsersPosts = async (req, res) => {
     res.status(500).json({ message: error });
   }
 };
+
 
 exports.postLike = async (req, res) => {
   const { postId } = req.params;

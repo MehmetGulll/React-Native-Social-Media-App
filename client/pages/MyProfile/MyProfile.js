@@ -17,7 +17,7 @@ import {
   TextInput,
   Modal,
   ScrollView,
-  Alert
+  Alert,
 } from "react-native";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
@@ -55,6 +55,7 @@ function MyProfile() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [againNewPassword, setAgainNewPassword] = useState("");
+  const [visibleCloseAccount, setVisibleCloseAccount] = useState(false);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["%25", "75%"], []);
   const handlePresentModalPress = useCallback((postId) => {
@@ -113,8 +114,9 @@ function MyProfile() {
     const fetchPosts = async () => {
       try {
         const response = await axios.get(`${apihost}/getUserPosts/${username}`);
-
-        setPost(response.data);
+        if (response.data.length > 0) {
+          setPost(response.data);
+        }
       } catch (error) {
         console.log("Error", error);
       }
@@ -124,8 +126,9 @@ function MyProfile() {
         const response = await axios.post(`${apihost}/getFollowerCount`, {
           userId: currentUserId,
         });
-
-        setFollowerCount(response.data.followerCount);
+        if (response.data.length > 0) {
+          setFollowerCount(response.data.followerCount);
+        }
       } catch (error) {
         console.log("Error", error);
       }
@@ -135,8 +138,9 @@ function MyProfile() {
         const response = await axios.post(`${apihost}/getFollowingCount`, {
           userId: currentUserId,
         });
-
-        setFollowingCount(response.data.followingCount);
+        if (response.data.length > 0) {
+          setFollowingCount(response.data.followingCount);
+        }
       } catch (error) {
         console.log("Error", error);
       }
@@ -290,15 +294,39 @@ function MyProfile() {
         oldPassword: oldPassword,
         newPassword: newPassword,
       });
-      if(response.data.message){
+      if (response.data.message) {
         Alert.alert("Success", "Password changed", [
           { text: "OK", style: "cancel" },
         ]);
+      } else {
+        Alert.alert("Fail", "Password didn't change", [
+          { text: "OK", style: "cancel" },
+        ]);
       }
-      else{
-        Alert.alert("Fail", "Password didn't change",[
-          {text:"OK", style:'cancel'}
-        ])
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
+
+  const closeAccount = async () => {
+    Alert.alert("Warning", "Are you sure?", [
+      { text: "Yes", onPress: () => accountClose() },
+      { text: "No", style: "cancel" },
+    ]);
+  };
+  const accountClose = async () => {
+    try {
+      const response = await axios.post(`${apihost}/closeAccount`, {
+        userId: currentUserId,
+      });
+      if (response.data.message) {
+        Alert.alert("Warning", "Close Account", [
+          {
+            text: "OK",
+            style: "cancel",
+            onPress:()=>navigation.navigate("Login")
+          },
+        ]);
       }
     } catch (error) {
       console.log("Error", error);
@@ -520,7 +548,7 @@ function MyProfile() {
                               borderRadius={25}
                               fontSize={22}
                               padding={15}
-                              onPress={()=> changePassword()}
+                              onPress={() => changePassword()}
                             />
                           </View>
                         </View>
@@ -550,12 +578,35 @@ function MyProfile() {
                     borderBottomWidth: 1,
                     borderColor: "#FFF",
                   }}
+                  onPress={() => setVisibleCloseAccount(!visibleCloseAccount)}
                 >
                   <Text style={{ fontSize: 20, color: "#FFF" }}>
                     Close Account
                   </Text>
                   <FontAwesome name="angle-right" size={25} color={"#FFF"} />
                 </TouchableOpacity>
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={visibleCloseAccount}
+                >
+                  <LinearGradient
+                    colors={["#3B21B5", "#8F62D7", "#C69BE7"]}
+                    style={{ flex: 1 }}
+                  >
+                    <View style={{ marginHorizontal: 15, marginTop: 50 }}>
+                      <Button
+                        text={"Close Account"}
+                        backgroundColor={"#635A8F"}
+                        color={"#FFF"}
+                        borderRadius={25}
+                        fontSize={22}
+                        padding={15}
+                        onPress={() => closeAccount()}
+                      />
+                    </View>
+                  </LinearGradient>
+                </Modal>
               </View>
               <View style={{ alignItems: "center", marginBottom: 10 }}>
                 <TouchableOpacity

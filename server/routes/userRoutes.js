@@ -26,4 +26,5 @@ router.post("/blockedUser", userController.userBlocked);
 router.get("/getBlockedUsers/:userId",userController.getBlockedUsers);
 router.post("/userUnBlocked",userController.userUnBlocked);
 router.post("/changePassword", userController.changePassword);
+router.post("/closeAccount", userController.closeAccount);
 module.exports = router;

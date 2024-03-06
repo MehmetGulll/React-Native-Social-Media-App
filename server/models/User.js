@@ -31,7 +31,11 @@ const UserSchema = new mongoose.Schema({
   blockedUsers:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:'User'
-  }]
+  }],
+  isActive:{
+    type:Boolean,
+    default:true
+  }
 });
 
 module.exports = mongoose.model("User", UserSchema);

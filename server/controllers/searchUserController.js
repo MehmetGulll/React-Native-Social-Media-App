@@ -17,6 +17,7 @@ exports.getUsers = async (req, res) => {
         $ne: currentUserId, 
         $nin: currentUser.blockedUsers 
       },
+      isActive: true,
     });
     res.json(users);
   } catch (error) {

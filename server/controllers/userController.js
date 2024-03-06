@@ -22,10 +22,36 @@ exports.signup = async (req, res) => {
   }
 };
 
+// exports.login = async (req, res) => {
+//   try {
+//     const user = await User.findOne({ email: req.body.email });
+//     if (!user) {
+//       return res.json({ error: "Kullanıcı Bulunamadı" });
+//     }
+//     const validPassword = await bcrypt.compare(
+//       req.body.password,
+//       user.password
+//     );
+//     if (!validPassword) {
+//       return res.json({ error: "Kullanıcı Bulunamadı" });
+//     }
+//     const username = user.firstname + " " + user.lastname;
+//     const currentId = user._id;
+//     const token = jwt.sign({ _id: user._id }, "yourKey");
+//     res.header("auth-token", token).json({
+//       message: "Giriş Başarılı",
+//       username: username,
+//       currentId: currentId,
+//       token: token,
+//     });
+//   } catch (error) {
+//     console.log("Error", error);
+//   }
+// };
 exports.login = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
-    if (!user) {
+    if (!user || !user.isActive) {
       return res.json({ error: "Kullanıcı Bulunamadı" });
     }
     const validPassword = await bcrypt.compare(
@@ -35,6 +61,9 @@ exports.login = async (req, res) => {
     if (!validPassword) {
       return res.json({ error: "Kullanıcı Bulunamadı" });
     }
+    user.isActive = true;
+    await user.save();
+
     const username = user.firstname + " " + user.lastname;
     const currentId = user._id;
     const token = jwt.sign({ _id: user._id }, "yourKey");
@@ -48,6 +77,7 @@ exports.login = async (req, res) => {
     console.log("Error", error);
   }
 };
+
 
 exports.checkEmail = async (req, res) => {
   try {
@@ -154,39 +184,52 @@ exports.userBlocked = async (req, res) => {
     console.log("Error", error);
   }
 };
-exports.userUnBlocked = async(req,res)=>{
+exports.userUnBlocked = async (req, res) => {
   try {
-    const {currentUserId, userId} = req.body;
+    const { currentUserId, userId } = req.body;
     const user = await User.findById(currentUserId);
     user.blockedUsers.pull(userId);
     await user.save();
-    res.send({success:true});
+    res.send({ success: true });
   } catch (error) {
-    console.log("Error",error);
+    console.log("Error", error);
   }
-}
-exports.getBlockedUsers = async(req,res)=>{
+};
+exports.getBlockedUsers = async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId).populate('blockedUsers');
+    const user = await User.findById(req.params.userId).populate(
+      "blockedUsers"
+    );
     res.json(user.blockedUsers);
   } catch (error) {
-    console.log("Error",error);
+    console.log("Error", error);
   }
-}
-exports.changePassword = async(req,res)=>{
+};
+exports.changePassword = async (req, res) => {
   try {
-    const {currentUserId, oldPassword, newPassword} = req.body;
+    const { currentUserId, oldPassword, newPassword } = req.body;
     const user = await User.findById(currentUserId);
     const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if(!isMatch){
-      return res.status(400).json({message:'Incorrect current password.'});
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect current password." });
     }
-    const hashedPassword = await bcrypt.hash(newPassword,10);
-    user.password = hashedPassword
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
     await user.save();
-    res.json({message:true});
+    res.json({ message: true });
   } catch (error) {
-    console.log("Error",error);
-    res.status(500).json({message:false,error:error});
+    console.log("Error", error);
+    res.status(500).json({ message: false, error: error });
   }
-}
+};
+exports.closeAccount = async (req, res) => {
+  try {
+    const user = await User.findById(req.body.userId);
+    user.isActive = false;
+    await user.save();
+    res.json({ message: "Account closed successfuly." });
+  } catch (error) {
+    console.log("Error", error);
+    res.status(500).json({ message: error });
+  }
+};

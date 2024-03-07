@@ -115,7 +115,7 @@ function Login() {
                   Remember Me
                 </Text>
               </View>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={()=>navigation.navigate("ForgotPassword")}>
                 <Text
                   style={{ fontSize: 17, color: "#3B21B2", fontWeight: "500" }}
                 >

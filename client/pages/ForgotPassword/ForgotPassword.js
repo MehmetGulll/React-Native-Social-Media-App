@@ -47,7 +47,7 @@ function ForgotPassword() {
         </View>
         <View style = {{marginHorizontal:32, marginTop:30}}>
           <Button
-            text={"Sign in"}
+            text={"Recover Password"}
             backgroundColor={"#635A8F"}
             color={"#FFF"}
             borderRadius={25}

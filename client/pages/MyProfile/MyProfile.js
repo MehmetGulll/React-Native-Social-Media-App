@@ -121,6 +121,7 @@ function MyProfile() {
         console.log("Error", error);
       }
     };
+   
     const getFollowerCount = async () => {
       try {
         const response = await axios.post(`${apihost}/getFollowerCount`, {
@@ -133,6 +134,7 @@ function MyProfile() {
         console.log("Error", error);
       }
     };
+  
     const getFollowingCount = async () => {
       try {
         const response = await axios.post(`${apihost}/getFollowingCount`, {
@@ -145,7 +147,7 @@ function MyProfile() {
         console.log("Error", error);
       }
     };
-
+    
     const fetchProfileImage = async () => {
       const response = await axios.get(`${apihost}/getProfileImage`, {
         params: {
@@ -158,6 +160,7 @@ function MyProfile() {
         setIsProfileImageLoaded(true);
       }
     };
+   
     const fetchCoverImage = async () => {
       const response = await axios.get(`${apihost}/getCoverImage`, {
         params: {
@@ -169,6 +172,7 @@ function MyProfile() {
         setIsCoverImageLoaded(true);
       }
     };
+    
     const fetchBlockedUsers = async () => {
       try {
         const response = await axios.get(

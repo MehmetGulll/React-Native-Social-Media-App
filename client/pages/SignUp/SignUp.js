@@ -22,6 +22,11 @@ function SignUp() {
       Alert.alert("Uyarı", "İsim ve Soyisminiz 3 harften fazla olmalı", [
         { text: "Tamam", style: "cancel" },
       ]);
+    }
+    else if (!agreeChecked){
+      Alert.alert("Warning", "Please agree with privacy and policy",[
+        {text:'OK',style:'cancel'},
+      ])
     } else {
       try {
         const checkResponse = await axios.get(`${apihost}/checkEmail`, {
@@ -29,6 +34,7 @@ function SignUp() {
             email: email,
           },
         });
+       
         if (checkResponse.data.exists) {
           Alert.alert(
             "Uyarı",

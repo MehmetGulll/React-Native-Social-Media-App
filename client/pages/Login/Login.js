@@ -15,6 +15,7 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import axios from "axios";
 import { apihost } from "../../API/url";
 import { GlobalContext } from "../../Context/GlobalStates";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function Login() {
   const navigation = useNavigation();
@@ -26,6 +27,13 @@ function Login() {
     React.useCallback(() => {
       setEmail("");
       setPassword("");
+      const checkToken = async () => {
+        const token = await AsyncStorage.getItem("userToken");
+        if (token) {
+          navigation.navigate("Home");
+        }
+      };
+      checkToken();
     }, [])
   );
 
@@ -42,6 +50,9 @@ function Login() {
       setCurrentUserId(response.data.currentId);
 
       if (response.data.message === "Giriş Başarılı") {
+        if (rememberChecked) {
+          await AsyncStorage.setItem("userToken", response.data.token);
+        }
         navigation.navigate("Home");
       } else {
         Alert.alert("Hata", response.data.error);
@@ -115,7 +126,9 @@ function Login() {
                   Remember Me
                 </Text>
               </View>
-              <TouchableOpacity onPress={()=>navigation.navigate("ForgotPassword")}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("ForgotPassword")}
+              >
                 <Text
                   style={{ fontSize: 17, color: "#3B21B2", fontWeight: "500" }}
                 >

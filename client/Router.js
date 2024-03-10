@@ -1,5 +1,6 @@
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { Platform, SafeAreaView } from "react-native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";  
 import "react-native-gesture-handler";
 import Login from "./pages/Login/Login";
 import SignUp from "./pages/SignUp/SignUp";
@@ -8,7 +9,7 @@ import { GlobalProvider } from "./Context/GlobalStates";
 import TextMessage from "./pages/TextMessage/TextMessage";
 import RequestMessage from "./pages/RequestMessages/RequestMessages";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
-
+const Stack = createNativeStackNavigator();
 
 function Router() {
   return (

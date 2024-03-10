@@ -42,6 +42,7 @@ function Home() {
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
+  const [think, setThink] = useState("");
 
   const navigation = useNavigation();
   const { currentUserId, setNotificationsModal, notificationsModal } =
@@ -342,6 +343,39 @@ function Home() {
             ))}
           </View>
         )}
+        <View style={{ marginTop: 10, marginHorizontal: 32 }}>
+          <TextInput
+            multiline={true}
+            numberOfLines={5}
+            borderWidth={1}
+            borderRadius={10}
+            borderColor={"grey"}
+            placeholder="What are you thinking?"
+            placeholderTextColor={"#FFF"}
+            padding={12}
+            color={"#FFF"}
+            textAlignVertical="top"
+            onChangeText={(text) => setThink(text)}
+          />
+          {think && (
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "flex-end",
+                marginTop:10
+              }}
+            >
+              <Button
+                text={"Share"}
+                backgroundColor={"blue"}
+                borderRadius={25}
+                fontSize={15}
+                padding={12}
+                color={"#FFF"}
+              />
+            </View>
+          )}
+        </View>
         {pageLoading ? (
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (

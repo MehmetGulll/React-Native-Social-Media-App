@@ -2,17 +2,17 @@ import { Image, TouchableOpacity, View, Alert } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import Home from "./pages/Home/Home";
-import Messages from "./pages/Messages/Messages";
-import AddPost from "./pages/AddPost/AddPost";
-import MyProfile from "./pages/MyProfile/MyProfile";
-import Notifications from "./pages/Notifications/Notifications";
+import Home from "../pages/Home/Home";
+import Messages from "../pages/Messages/Messages";
+import AddPost from "../pages/AddPost/AddPost";
+import MyProfile from "../pages/MyProfile/MyProfile";
+import Notifications from "../pages/Notifications/Notifications";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
-import { GlobalContext, GlobalProvider } from "./Context/GlobalStates";
+import { GlobalContext, GlobalProvider } from "../Context/GlobalStates";
 import React, { useContext } from "react";
-import { apihost } from "./API/url";
-import UserProfile from "./pages/UserProfile/UserProfile";
+import { apihost } from "../API/url";
+import UserProfile from "../pages/UserProfile/UserProfile";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -97,7 +97,7 @@ function BottomTabNavigator() {
         name="HomeTabs"
         component={Home}
         options={{
-          tabBarIcon: () => <Image source={require("./assets/hometab.png")} />,
+          tabBarIcon: () => <Image source={require("../assets/hometab.png")} />,
         }}
       />
       <Tab.Screen
@@ -105,7 +105,7 @@ function BottomTabNavigator() {
         component={Messages}
         options={{
           tabBarIcon: () => (
-            <Image source={require("./assets/messagetab.png")} />
+            <Image source={require("../assets/messagetab.png")} />
           ),
         }}
       />
@@ -116,7 +116,7 @@ function BottomTabNavigator() {
           tabBarIcon: () => (
             <TouchableOpacity onPress={selectPhotoTapped}>
               <Image
-                source={require("./assets/add.png")}
+                source={require("../assets/add.png")}
                 resizeMode="contain"
                 style={{
                   width: 30,
@@ -149,7 +149,7 @@ function BottomTabNavigator() {
                 });
               }}
             >
-              <Image source={require("./assets/profiletab.png")} />
+              <Image source={require("../assets/profiletab.png")} />
             </TouchableOpacity>
           ),
         }}
@@ -165,7 +165,7 @@ function BottomTabNavigator() {
         }}
         options={{
           tabBarIcon: () => (
-            <Image source={require("./assets/notificationtab.png")} />
+            <Image source={require("../assets/notificationtab.png")} />
           ),
         }}
       />
